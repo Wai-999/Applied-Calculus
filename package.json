@@ -1,0 +1,12 @@
+{
+  "name": "applied-calculus-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A visual, application-first learning companion for Barnett, Ziegler and Byleen's Calculus, 13th edition.",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
