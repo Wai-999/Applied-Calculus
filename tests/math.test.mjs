@@ -8,8 +8,8 @@ test('The curriculum covers all 45 sections of the eight chapters',()=>{
   const counts=[6,7,7,6,5,4,7,3];
   assert.equal(lessons.length,45);assert.equal(chapters.length,8);assert.equal(new Set(lessons.map(l=>l.id)).size,45);
   for(let c=1;c<=8;c++){assert.equal(lessons.filter(l=>l.id.startsWith(c+'.')).length,counts[c-1]);for(let s=1;s<=counts[c-1];s++)assert.ok(lessons.some(l=>l.id===`${c}.${s}`));}
-  assert.equal(lessons.flatMap(l=>l.questions).length,135);
-  for(const l of lessons){assert.ok(labCatalog.some(x=>x.id===l.lab));assert.ok(areas.some(a=>a.id===l.area));assert.equal(l.steps.length,3);assert.equal(l.questions.length,3);assert.ok(l.page>0);for(const q of l.questions){assert.ok(Number.isFinite(q.answer));assert.ok(q.hint&&q.solution&&q.prompt);assert.ok(isCorrect(String(q.answer),q.answer));}}
+  assert.equal(lessons.flatMap(l=>l.questions).length,180);
+  for(const l of lessons){assert.ok(labCatalog.some(x=>x.id===l.lab));assert.ok(areas.some(a=>a.id===l.area));assert.equal(l.steps.length,3);assert.equal(l.questions.length,4);assert.ok(l.page>0);for(const q of l.questions){assert.ok(Number.isFinite(q.answer));assert.ok(q.hint&&q.solution&&q.prompt);assert.ok(isCorrect(String(q.answer),q.answer));}}
   for(const a of areas)for(const id of a.lessons)assert.ok(lessons.some(l=>l.id===id));
 });
 test('Printed page references map correctly to the supplied PDF',()=>{assert.equal(book.pageOffset+3,23);assert.equal(book.pageOffset+226,246);assert.equal(book.pageOffset+382,402);});

@@ -9,7 +9,7 @@ export function validateState(data) {
   if (data.diagnostic != null && (!object(data.diagnostic) || !Number.isInteger(data.diagnostic.score) || data.diagnostic.score < 0 || data.diagnostic.score > 5 || !Number.isFinite(data.diagnostic.date))) throw new Error('Invalid readiness check.');
   if (Object.values(data.notes).some(x => typeof x !== 'string')) throw new Error('Invalid notes.');
   for (const [key,a] of Object.entries(data.attempts)) {
-    if (!section(key.split('-')[0]) || !/^[1-8]\.[1-7]-[0-2]$/.test(key)) throw new Error('Invalid practice question.');
+    if (!section(key.split('-')[0]) || !/^[1-8]\.[1-7]-[0-3]$/.test(key)) throw new Error('Invalid practice question.');
     if (!a || !Number.isInteger(a.correct) || !Number.isInteger(a.total) || a.correct < 0 || a.total < a.correct || !Number.isFinite(a.last) || typeof a.mastered !== 'boolean') throw new Error('Invalid practice records.');
   }
   return { ...emptyState(), ...data, completed: [...new Set(data.completed)], bookmarks: [...new Set(data.bookmarks)], activeDays: [...new Set(data.activeDays)] };
@@ -20,5 +20,5 @@ export function loadState(storage) {
 }
 export function dueQuestions(state, lessons, now = Date.now()) {
   const all = lessons.flatMap(l => l.questions.map((q, i) => ({ ...q, key: `${l.id}-${i}`, lesson: l })));
-  return all.filter(q => { const a = state.attempts[q.key]; return a && (!a.mastered || now - a.last >= 3 * 86400000); }).sort((a, b) => (state.attempts[a.key].last - state.attempts[b.key].last));
+  return all.filter(q => { const a = state.attempts[q.key]; return a && (!a.mastered || now >= (a.dueAt ?? a.last + 3 * 86400000)); }).sort((a, b) => (state.attempts[a.key].last - state.attempts[b.key].last));
 }
