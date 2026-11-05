@@ -73,7 +73,7 @@ test('Old backups and new guided records preserve notes, question mastery, and p
   assert.equal(session.state.notes['1.1'],old.notes['1.1']);assert.equal(session.lessonMastery('1.1'),20);
   assert.equal(session.state.studio.textSize,'comfortable');
   const normalized=session.normalizeStudio({schema:2,textSize:'extra',interest:'life',guided:{'1.1':{prediction:2,reasoned:true,observed:'yes'},'99.9':{prediction:0}}});
-  assert.equal(normalized.schema,3);assert.equal(normalized.textSize,'extra');assert.equal(normalized.interest,'life');
+  assert.equal(normalized.schema,4);assert.equal(normalized.textSize,'extra');assert.equal(normalized.interest,'life');
   assert.equal(normalized.guided['1.1'].observed,false);assert.ok(!normalized.guided['99.9']);
   loaded.studio=normalized;session.replaceState(validateState(JSON.parse(JSON.stringify(loaded))));
   assert.equal(session.guidedRecord('1.1').prediction,2);

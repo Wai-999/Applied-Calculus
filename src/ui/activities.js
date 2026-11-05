@@ -4,6 +4,7 @@ import {activityStatus,initialOrder,moveOrder,checkOrder} from '../engine/engage
 import {guidedRecord,saveGuided,lessonMastery} from '../core/session.js';
 import {esc,icon} from './shared.js';
 import {math} from './math.js';
+import {translate} from '../i18n/core.js';
 
 export const observationTasks={
   functions:['Keep a and k fixed. Move h from 3 to 5.','Compare the vertex coordinates before and after. Explain why the graph moves right.'],
@@ -91,7 +92,7 @@ export function mountActivities(root,l,signal,switchView){
       update({reasoned:true,assisted:true});
     }
     const starter=e.target.closest('[data-note-starter]');
-    if(starter){const field=root.querySelector('#lesson-note');field.value+=(field.value?'\n\n':'')+starter.dataset.noteStarter+' ';field.dispatchEvent(new Event('input',{bubbles:true}));field.focus();field.setSelectionRange(field.value.length,field.value.length);}
+    if(starter){const field=root.querySelector('#lesson-note');field.value+=(field.value?'\n\n':'')+translate(starter.dataset.noteStarter)+' ';field.dispatchEvent(new Event('input',{bubbles:true}));field.focus();field.setSelectionRange(field.value.length,field.value.length);}
     if(e.target.closest('[data-choice]'))update({practised:true});
   },{signal});
   root.addEventListener('input',e=>{

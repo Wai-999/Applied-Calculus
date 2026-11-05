@@ -6,6 +6,8 @@ import {bindActions} from './actions.js';
 import {applyPreferences} from './session.js';
 import {loadBook} from '../services/book.js';
 import {openCommand} from '../ui/command.js';
+import {setLocale,startLocalization,localizeTree,validLocale} from '../i18n/core.js';
+import {state,save} from './session.js';
 const app=document.querySelector('#app');
 let lifecycle=new AbortController(),sequence=0,previous='';
 export function readRoute(){const [path,query]=(location.hash.slice(1)||'/').split('?');return {path,params:new URLSearchParams(query)};}
@@ -15,8 +17,13 @@ export async function render(){
   lifecycle.abort();lifecycle=new AbortController();const signal=lifecycle.signal;
   document.body.dataset.page=parts[0]||'home';document.body.classList.remove('menu-open');applyPreferences();
   try{
+    if(params.has('lang')){state.studio.language=validLocale(params.get('lang'));save();}
+    await setLocale(state.studio.language);
+    if(ticket!==sequence)return;
     let html,mount=()=>{},answer=()=>{};
-    if(path==='/'||['atlas','glossary','insights'].includes(parts[0])){
+    if(parts[0]==='terminology'){
+      const page=await import('../pages/terminology.js');html=page.terminologyPage(params);mount=()=>page.mountTerminology(app,params,signal);
+    }else if(path==='/'||['atlas','glossary','insights'].includes(parts[0])){
       const page=await import('../pages/explore.js');html=path==='/'?page.workspacePage():parts[0]==='atlas'?page.atlasPage(params):parts[0]==='glossary'?page.glossaryPage():page.insightsPage();
     }else if(parts[0]==='lesson'&&lessons.some(l=>l.id===parts[1])){
       const page=await import('../pages/lesson.js'),lesson=lessons.find(l=>l.id===parts[1]);html=page.lessonPage(lesson,params);mount=()=>page.mountLesson(app,lesson,signal);answer=()=>page.updateEvidence(app,lesson.id);
@@ -38,6 +45,7 @@ export async function render(){
     if(ticket!==sequence)return;
     app.innerHTML=html;previous=key;
     bindLabs(app);enhanceLabs(app,signal);bindQuestions(app,answer);bindActions(app,{path,params,render,navigate,signal});mount();
+    localizeTree(app);
     document.title=(app.querySelector('h1')?.textContent||'Your studio')+' · Applied';
     document.body.classList.remove('menu-open');window.scrollTo({top:0,behavior:'instant'});app.querySelector('#main')?.focus({preventScroll:true});
   }catch(error){
@@ -50,5 +58,6 @@ window.addEventListener('hashchange',render);
 window.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCommand();}});
 document.querySelector('.skip-link').addEventListener('click',e=>{e.preventDefault();app.querySelector('#main')?.focus();});
 window.addEventListener('storage',e=>{if(e.key==='applied-studio-v1')document.dispatchEvent(new CustomEvent('studio:notice',{detail:'Progress changed in another tab. Reload to use the latest saved state.'}));});
+startLocalization();
 render();
 loadBook().then(()=>{if(readRoute().path==='/resources')render();}).catch(()=>{});

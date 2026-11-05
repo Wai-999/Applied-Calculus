@@ -1,3 +1,4 @@
+import {normalizeSearch} from './text.js';
 export function scheduleAttempt(previous, correct, independent, now = Date.now()) {
   const mastered = correct && independent;
   const streak = mastered ? (previous?.streak || 0) + 1 : 0;
@@ -17,11 +18,11 @@ export function recommendLesson(lessons, details, state) {
   return lessons.find(l => !state.completed.includes(l.id) && (details[l.id]?.prerequisites || []).every(id => state.completed.includes(id))) || lessons.find(l => !state.completed.includes(l.id)) || lessons[0];
 }
 export function searchIndex(query, entries) {
-  const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+  const terms = normalizeSearch(query).split(/\s+/).filter(Boolean);
   if (!terms.length) return entries.slice(0, 10);
   return entries.map(entry => {
-    const title = entry.title.toLocaleLowerCase();
-    const text = `${entry.title} ${entry.keywords || ''}`.toLocaleLowerCase();
+    const title = normalizeSearch(entry.title+' '+(entry.localizedTitle||''));
+    const text = normalizeSearch(`${title} ${entry.keywords || ''}`);
     const score = terms.every(t => text.includes(t)) ? terms.reduce((sum, t) => sum + (title.includes(t) ? 5 : 1), 0) : 0;
     return { ...entry, score };
   }).filter(e => e.score > 0).sort((a, b) => b.score - a.score).slice(0, 16);

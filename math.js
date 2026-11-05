@@ -1,3 +1,4 @@
+import {normalizeDigits} from './src/engine/text.js';
 export const profit = (q, price = 80, cost = 20, fixed = 400, demand = 0.5) => (price - cost) * q - demand * q * q - fixed;
 export const optimalQuantity = (price = 80, cost = 20, demand = 0.5) => Math.max(0, (price - cost) / (2 * demand));
 export const population = (time, rate = 0.2, initial = 100) => initial * Math.exp(rate * time);
@@ -13,7 +14,7 @@ export const numericalIntegral = (fn, a, b, n = 200) => {
   return sum * h;
 };
 export function parseAnswer(input) {
-  const value = String(input).trim().replaceAll(',', '');
+  const value = normalizeDigits(input).trim().replaceAll(',', '');
   if (/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value)) return Number(value);
   const fraction = value.match(/^([+-]?\d+(?:\.\d+)?)\s*\/\s*([+-]?\d+(?:\.\d+)?)$/);
   return fraction && Number(fraction[2]) !== 0 ? Number(fraction[1]) / Number(fraction[2]) : NaN;

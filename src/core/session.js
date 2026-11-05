@@ -3,7 +3,7 @@ import { lessons } from '../../data.js';
 import {normalizeGuided} from '../engine/engagement.js';
 import {PALETTES,READING_SIZES} from '../ui/design-tokens.js';
 
-const defaultStudio = () => ({ schema: 3, theme: 'light', textSize: 'comfortable', focus: false, goal: 20, interest:'all', guided:{}, concepts: {}, reading: {}, confidence: {}, experiments: {}, events: [] });
+const defaultStudio = () => ({ schema: 4, language:'en', theme: 'light', textSize: 'comfortable', focus: false, goal: 20, interest:'all', guided:{}, concepts: {}, reading: {}, confidence: {}, experiments: {}, events: [] });
 export let state = loadState(localStorage);
 export function normalizeStudio(value) {
   const base = defaultStudio();
@@ -12,6 +12,7 @@ export function normalizeStudio(value) {
     if (value[key] && typeof value[key] === 'object' && !Array.isArray(value[key])) base[key] = value[key];
   }
   base.theme = value.theme === 'dark' ? 'dark' : 'light';
+  base.language=value.language==='my'?'my':'en';
   base.textSize = Object.hasOwn(READING_SIZES,value.textSize) ? value.textSize : 'comfortable';
   base.interest=['business','economics','life','social'].includes(value.interest)?value.interest:'all';
   if(value.guided&&typeof value.guided==='object'&&!Array.isArray(value.guided))base.guided=Object.fromEntries(Object.entries(value.guided).filter(([id])=>lessons.some(l=>l.id===id)).map(([id,record])=>[id,normalizeGuided(record)]));

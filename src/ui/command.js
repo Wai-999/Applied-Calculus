@@ -1,14 +1,16 @@
+import {burmeseText,lessonSearchText,ensureBurmese} from '../i18n/core.js';
 import {lessons,labCatalog,areas} from '../../data.js';
 import {details} from '../content/index.js';
 import {searchIndex} from '../engine/learning.js';
 import {esc,icon} from './shared.js';
-const entries=[
-  ...lessons.map(l=>({title:l.title,tag:'LESSON '+l.id,path:'/lesson/'+l.id,keywords:l.id+' '+l.why+' '+details[l.id].symbols.map(s=>s.join(' ')).join(' ')})),
-  ...labCatalog.map(l=>({title:l.title,tag:'VISUAL LAB',path:'/labs/'+l.id,keywords:l.topic+' '+l.subtitle})),
-  ...areas.map(a=>({title:a.name,tag:'APPLICATION',path:'/applications/'+a.id,keywords:a.description+' '+a.question})),
+const entries=()=>[
+  ...lessons.map(l=>({title:l.title,localizedTitle:burmeseText(l.title),tag:'LESSON '+l.id,path:'/lesson/'+l.id,keywords:l.id+' '+l.why+' '+lessonSearchText(l.id)+' '+details[l.id].symbols.map(s=>s.join(' ')).join(' ')})),
+  ...labCatalog.map(l=>({title:l.title,localizedTitle:burmeseText(l.title),tag:'VISUAL LAB',path:'/labs/'+l.id,keywords:l.topic+' '+l.subtitle+' '+burmeseText(l.topic)+' '+burmeseText(l.subtitle)})),
+  ...areas.map(a=>({title:a.name,localizedTitle:burmeseText(a.name),tag:'APPLICATION',path:'/applications/'+a.id,keywords:a.description+' '+a.question+' '+burmeseText(a.description)+' '+burmeseText(a.question)})),
   {title:'Concept atlas',tag:'STUDIO',path:'/atlas',keywords:'prerequisites dependency map relationships'},
   {title:'Learning insights',tag:'STUDIO',path:'/insights',keywords:'progress mastery mistakes confidence'},
   {title:'Formula library',tag:'STUDIO',path:'/glossary',keywords:'reference equations flashcards recall'},
+  {title:'Mathematical terminology',tag:'STUDIO',path:'/terminology',keywords:'terms notation meanings usages definitions အဓိပ္ပာယ် ဝေါဟာရ သင်္ချာ'},
 ];
 export function openCommand(){
   if(document.querySelector('.command-dialog'))return;
@@ -16,8 +18,8 @@ export function openCommand(){
   dialog.innerHTML=`<div class="command-input">${icon('search')}<label class="sr-only" id="command-title" for="command-query">Search lessons, labs and applications</label><input id="command-query" type="search" placeholder="What do you want to understand?" autocomplete="off"><button class="text-button" data-close-command aria-label="Close search">Esc</button></div><div class="command-results" role="list"></div><div class="command-footer"><span>↑ ↓ to move · Enter to open</span><span>Search your entire studio</span></div>`;
   let current=0,results=[];
   const close=()=>{dialog.close();dialog.remove();previous?.focus();};
-  const paint=()=>{results=searchIndex(dialog.querySelector('input').value,entries);current=0;dialog.querySelector('.command-results').innerHTML=results.length?results.map((r,i)=>`<a role="listitem" class="command-result ${i===0?'command-current':''}" href="#${r.path}"><span><small>${r.tag}</small><strong>${esc(r.title)}</strong></span>${icon('arrow')}</a>`).join(''):'<p class="command-empty">No matches. Try a term such as “growth”, “cost” or “integral”.</p>';};
-  dialog.querySelector('input').addEventListener('input',paint);
+  const paint=()=>{results=searchIndex(dialog.querySelector('input').value,entries());current=0;dialog.querySelector('.command-results').innerHTML=results.length?results.map((r,i)=>`<a role="listitem" class="command-result ${i===0?'command-current':''}" href="#${r.path}"><span><small>${r.tag}</small><strong>${esc(r.title)}</strong></span>${icon('arrow')}</a>`).join(''):'<p class="command-empty">No matches. Try a term such as “growth”, “cost” or “integral”.</p>';};
+  dialog.querySelector('input').addEventListener('input',async()=>{const query=dialog.querySelector('input').value;if(/[\u1000-\u109f]/.test(query))try{await ensureBurmese();}catch{}if(dialog.isConnected)paint();});
   dialog.querySelector('[data-close-command]').addEventListener('click',close);
   dialog.addEventListener('click',e=>{if(e.target.closest('.command-result'))close();});
   dialog.addEventListener('cancel',e=>{e.preventDefault();close();});

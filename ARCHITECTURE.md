@@ -1,4 +1,4 @@
-# Applied Studio 03 architecture
+# Applied Studio 04 architecture
 
 The application is a static, browser-local learning platform. GitHub Pages serves the source and bundled mathematical typesetting assets. There is no application server, account service, remote learner database or API key.
 
@@ -51,6 +51,8 @@ GitHub Actions runs npm ci, tests and the static build before publishing dist/. 
 
 ## Active learning and readability
 
+Studio 04 also supports English and Burmese. See the language boundary below.
+
 Every lesson has an original fictional scenario and a three-choice prediction. Predictions receive explanatory feedback without affecting mastery. The matching activity pairs three equations with their authored reasons; moving an explanation never changes the equations. Guided lab prompts name an intervention and an observation for all 14 model types. A model input records participation; the observation journal remains the learner’s own explanation.
 
 The lesson guide is prepared content, not a remote chat or an AI assessment. Its dialog provides intuition, a worked example, symbols and a getting-started checklist. It is removed with the route lifecycle. Reflection starters append to existing notes and use the same autosave path.
@@ -58,3 +60,11 @@ The lesson guide is prepared content, not a remote chat or an AI assessment. Its
 Learning trails track four activities separately from the four numerical checks and conceptual check. Recommendations honor a current lesson, then follow unmet prerequisites toward the selected application interest.
 
 Shared palette and reading-size tokens live in src/ui/design-tokens.js. Tests require AA normal-text contrast on reading surfaces in both themes. Interface metadata has a 14px shared floor, learning copy has 20/23/26px options, and mobile does not reduce reading text. learning.css is the final layout and active-learning layer; the static build includes it explicitly.
+
+## Language and terminology
+
+English records remain the mathematical authority. `src/i18n/my/` holds full Burmese text assets, UI messages and research. The pack loads on demand through `src/i18n/core.js`. A scoped presentation pass translates authored text and accessible labels, retaining original strings for switching back. It skips personal notes, field values, mathematical rendering and operational attributes.
+
+Language switching retains the document and handlers, including in-progress answers. The studio schema becomes 4 without changing the version-1 backup envelope. Unicode-aware search and Myanmar digit normalization live in `src/engine/text.js`; the safe number/fraction parser still grades the result.
+
+`src/content/terminology.js` holds 102 bilingual entries with meanings, purposes, examples and lesson links. The page supports topic filters, bilingual search, exact-name ranking, lesson scope and permalinks. `languages.css` handles Burmese typography, responsive controls and the reference layout. See [LOCALIZATION.md](LOCALIZATION.md).
