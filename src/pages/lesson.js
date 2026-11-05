@@ -7,6 +7,9 @@ import { icon, esc, areaFor, lessonFor } from '../ui/shared.js';
 import { math } from '../ui/math.js';
 import { questionForm } from '../ui/questions.js';
 import { toast } from '../ui/feedback.js';
+import {renderMission,renderTrail,renderReasoning,renderExperimentTask,renderRecap,renderExplainPrompts,mountActivities} from '../ui/activities.js';
+import {guideButton,mountLessonGuide} from '../ui/lesson-guide.js';
+import {nextReadingSize,READING_SIZES} from '../ui/design-tokens.js';
 
 const views=[['understand','Understand','book'],['reason','Derive & solve','branches'],['experiment','Experiment','flask'],['practice','Practise & reflect','target']];
 const stepHTML=(step,i)=>`<article class="reason-step"><span class="step-number">${String(i+1).padStart(2,'0')}</span><div>${math(step.equation)}<p>${esc(step.reason)}</p></div></article>`;
@@ -33,8 +36,13 @@ export function lessonPage(l,params){
   const experiment=`<section class="deep-section"><div class="section-number">PREDICT → CHANGE → EXPLAIN</div><h2>Make the relationship visible.</h2><p>The experiment is a related model for this topic. It may use different numbers from the worked examples. Use the data table, pin a result for comparison, and change one input at a time.</p>${renderLab(l.lab,'deep-lesson')}</section><section class="experiment-journal"><h2>Keep a record of what you noticed.</h2><label for="experiment-note">Before moving a control: what do you predict? Afterward: what changed, and why?</label><textarea id="experiment-note" data-note="experiment-${l.id}" rows="5" placeholder="My prediction… What I observed… My explanation…">${esc(state.notes['experiment-'+l.id]||'')}</textarea><span class="save-status">Saved automatically on this browser</span></section><button class="button primary" data-switch-view="practice">Try without the model ${icon('arrow')}</button>`;
   const practice=`${conceptCheck(l,d)}<section class="deep-section"><div class="section-number">CALCULATE & INTERPRET</div><h2>Use the method independently.</h2><p>Numbers and fractions are accepted. Each question states its accepted numerical error; small-valued challenges require more precision. A correct independent answer advances its review interval; assisted answers remain available for review.</p>${l.questions.map((q,i)=>questionForm(q,`${l.id}-${i}`,i+1)).join('')}</section>
   <section class="deep-section reflection-studio"><div class="section-number">TRANSFER & SELF-EXPLANATION</div><h2>Make the connection your own.</h2><p>${esc(d.transfer)}</p><label for="lesson-note">Explain the idea, its units, and a situation where its assumptions might fail.</label><textarea id="lesson-note" data-note="${l.id}" rows="6" placeholder="The key idea is… I would use it when… I must check…">${esc(state.notes[l.id]||'')}</textarea><span class="save-status">Saved automatically on this browser</span><fieldset class="confidence-check"><legend>How independently could you explain this?</legend>${['Still exploring','Can follow an example','Can explain and apply'].map((text,i)=>`<button type="button" data-confidence="${i}" aria-pressed="${state.studio.confidence[l.id]===i}">${text}</button>`).join('')}</fieldset><div class="complete-row"><button class="button primary" data-complete="${l.id}">${icon(state.completed.includes(l.id)?'check':'book')}${state.completed.includes(l.id)?'Lesson explored':'Mark lesson explored'}</button><a class="button secondary" href="#/practice?section=${l.id}">Focused practice ${icon('arrow')}</a></div></section>`;
-  const panels={understand,reason,experiment,practice};
-  return shell(`${header}<div class="deep-workspace">${rail}<div class="deep-content">${views.map(([id])=>`<div id="panel-${id}" role="tabpanel" aria-labelledby="tab-${id}" ${active===id?'':'hidden'}>${panels[id]}</div>`).join('')}<nav class="deep-pagination" aria-label="Adjacent lessons">${index?`<a href="#/lesson/${lessons[index-1].id}"><small>PREVIOUS</small><strong>← ${esc(lessons[index-1].title)}</strong></a>`:'<span></span>'}${index<lessons.length-1?`<a href="#/lesson/${lessons[index+1].id}"><small>NEXT CONNECTION</small><strong>${esc(lessons[index+1].title)} →</strong></a>`:'<a href="#/insights">See your learning insights →</a>'}</nav></div></div>`,'Lesson '+l.id,'learn');
+  const panels={
+    understand:renderMission(l)+understand,
+    reason:reason.replace('</section>','</section>'+renderReasoning(l)),
+    experiment:renderExperimentTask(l)+experiment,
+    practice:practice.replace('<label for="lesson-note">',renderExplainPrompts()+'<label for="lesson-note">')+renderRecap(l)
+  };
+  return shell(`${header}${renderTrail(l)}<div class="deep-workspace">${rail}<div class="deep-content">${views.map(([id])=>`<div id="panel-${id}" role="tabpanel" aria-labelledby="tab-${id}" ${active===id?'':'hidden'}>${panels[id]}</div>`).join('')}<nav class="deep-pagination" aria-label="Adjacent lessons">${index?`<a href="#/lesson/${lessons[index-1].id}"><small>PREVIOUS</small><strong>← ${esc(lessons[index-1].title)}</strong></a>`:'<span></span>'}${index<lessons.length-1?`<a href="#/lesson/${lessons[index+1].id}"><small>NEXT CONNECTION</small><strong>${esc(lessons[index+1].title)} →</strong></a>`:'<a href="#/insights">See your learning insights →</a>'}</nav></div></div>${guideButton()}`,'Lesson '+l.id,'learn');
 }
 export function mountLesson(root,l,signal){
   const d=details[l.id];
@@ -53,7 +61,10 @@ export function mountLesson(root,l,signal){
   root.querySelector('[data-all-steps]').addEventListener('click',()=>showSteps(d.derivation.length),{signal});
   root.querySelectorAll('[data-jump]').forEach(button=>button.addEventListener('click',()=>root.querySelector('#'+button.dataset.jump)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'start'}),{signal}));
   root.querySelector('[data-focus]').addEventListener('click',e=>{state.studio.focus=!state.studio.focus;applyPreferences();save();e.currentTarget.setAttribute('aria-pressed',state.studio.focus);toast(state.studio.focus?'Focus mode on. Use the same button to return to the full studio.':'Full studio restored.');},{signal});
-  root.querySelector('[data-reading-size]').addEventListener('click',()=>{state.studio.textSize=state.studio.textSize==='large'?'comfortable':'large';applyPreferences();save();},{signal});
+  const sizeButton=root.querySelector('[data-reading-size]');
+  function labelSize(){sizeButton.innerHTML='Aa <span>'+READING_SIZES[state.studio.textSize].label+'</span>';sizeButton.setAttribute('aria-label','Text size: '+READING_SIZES[state.studio.textSize].label+'. Activate to change size.');}
+  sizeButton.classList.add('reading-size-control');labelSize();
+  sizeButton.addEventListener('click',()=>{state.studio.textSize=nextReadingSize(state.studio.textSize);applyPreferences();save();labelSize();},{signal});
   root.querySelectorAll('[data-confidence]').forEach(button=>button.addEventListener('click',()=>{state.studio.confidence[l.id]=Number(button.dataset.confidence);save();root.querySelectorAll('[data-confidence]').forEach(b=>b.setAttribute('aria-pressed',b===button));},{signal}));
   let attempted=false;
   root.querySelectorAll('[data-choice]').forEach(button=>button.addEventListener('click',()=>{
@@ -65,8 +76,11 @@ export function mountLesson(root,l,signal){
   const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){root.querySelectorAll('[data-jump]').forEach(b=>b.classList.toggle('current',b.dataset.jump===entry.target.id));const sections=[...root.querySelectorAll('#panel-understand .deep-section')],position=sections.indexOf(entry.target)+1;root.querySelector('#reading-fill').style.width=`${position/sections.length*100}%`;root.querySelector('#reading-label').textContent=`Idea ${position} of ${sections.length}`;}},{rootMargin:'-10% 0px -65% 0px'});
   root.querySelectorAll('#panel-understand .deep-section').forEach(el=>observer.observe(el));
   signal.addEventListener('abort',()=>observer.disconnect(),{once:true});
+  mountActivities(root,l,signal,switchView);
+  mountLessonGuide(root,l,signal,switchView);
 }
 export function updateEvidence(root,id){
   const score=lessonMastery(id),badge=root.querySelector('.mastery-badge');
   if(badge)badge.innerHTML=`<span class="mastery-mini" style="--mastery:${score}%"></span>${score}% evidence of understanding`;
+  root.dispatchEvent(new CustomEvent('studio:evidence'));
 }

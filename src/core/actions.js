@@ -6,6 +6,9 @@ import {toast,confirmation} from '../ui/feedback.js';
 import {diagnosticResults} from '../ui/questions.js';
 import {openCommand} from '../ui/command.js';
 import {bookFile,attachBook,removeBook} from '../services/book.js';
+import {details} from '../content/index.js';
+import {recommendForInterest} from '../engine/engagement.js';
+import {READING_SIZES} from '../ui/design-tokens.js';
 
 export function bindActions(root,{path,params,render,navigate,signal}){
   const on=(selector,event,fn)=>root.querySelectorAll(selector).forEach(el=>el.addEventListener(event,fn,{signal}));
@@ -29,11 +32,15 @@ export function bindActions(root,{path,params,render,navigate,signal}){
   on('#progress-upload','change',async e=>{if(!e.target.files[0])return;try{await restore(await e.target.files[0].text());}catch(error){toast(error.message||'Invalid backup.');}});
   on('[data-reset]','click',async()=>{if(await confirmation('Clear learning progress, notes, bookmarks and preferences on this browser? Export a backup first to keep them.','Reset progress')){replaceState(emptyState());applyPreferences();render();toast('Learning progress reset.');}});
   on('[data-atlas-select]','change',e=>navigate('/atlas?lesson='+e.target.value));
+  function centerAtlas(){const view=root.querySelector('.atlas-scroll'),node=root.querySelector('.selected-node');if(!view||!node||signal.aborted)return;const box=node.getBoundingClientRect(),frame=view.getBoundingClientRect();view.scrollLeft+=box.left-frame.left+box.width/2-view.clientWidth/2;view.scrollTop+=box.top-frame.top+box.height/2-view.clientHeight/2;}
+  on('[data-atlas-zoom]','change',e=>{root.querySelector('.concept-atlas').style.setProperty('--atlas-scale',Number(e.target.value));centerAtlas();});
+  if(path==='/atlas')requestAnimationFrame(centerAtlas);
   on('[data-formula-search]','input',e=>{const terms=e.target.value.toLowerCase().trim().split(/\s+/).filter(Boolean);let count=0;root.querySelectorAll('[data-reference]').forEach(card=>{card.hidden=!terms.every(t=>card.dataset.reference.toLowerCase().includes(t));if(!card.hidden)count++;});root.querySelector('[data-reference-count]').textContent=count+' connections';root.querySelector('.reference-empty').hidden=count>0;});
   on('[data-retrieval]','click',e=>{const active=root.querySelector('.formula-library').classList.toggle('retrieval-active');e.currentTarget.setAttribute('aria-pressed',active);});
   on('[data-reveal-formula]','click',e=>{const active=e.currentTarget.closest('.formula-entry').classList.toggle('formula-revealed');e.currentTarget.textContent=active?'Hide formula':'Reveal formula';});
   function updatePlan(){const n=state.studio.goal,parts=[Math.round(n*.3),Math.round(n*.35)];parts.push(n-parts[0]-parts[1]);root.querySelectorAll('[data-plan-time]').forEach(el=>el.textContent=parts[Number(el.dataset.planTime)]+' min');}
   on('[data-goal]','change',e=>{state.studio.goal=Number(e.target.value);save();updatePlan();});updatePlan();
+  on('[data-interest]','click',e=>{state.studio.interest=e.currentTarget.dataset.interest;state.lastLesson=recommendForInterest(lessons,details,state,true).id;save();render();});
   if(path==='/learn')import('../pages/standard.js').then(module=>{
     if(signal.aborted)return;const input=root.querySelector('#lesson-search');
     if(params.get('search')){input.value=params.get('search');root.querySelector('#chapter-list').innerHTML=module.chapterList(input.value,module.courseFilter);}
@@ -47,7 +54,7 @@ export function bindActions(root,{path,params,render,navigate,signal}){
     cards[1].insertAdjacentHTML('beforeend','<details class="backup-text-panel"><summary>Paste a text backup</summary><label for="import-text">Applied backup JSON</label><textarea id="import-text" rows="7"></textarea><button class="button secondary" data-import-text>Restore from text</button></details>');
     on('[data-copy-backup]','click',async()=>{const f=root.querySelector('#backup-text');try{await navigator.clipboard.writeText(f.value);toast('Backup copied.');}catch{f.focus();f.select();toast('Backup selected. Copy it to keep it.');}});
     on('[data-import-text]','click',async()=>{try{await restore(root.querySelector('#import-text').value);}catch(error){toast(error.message||'Invalid backup.');}});
-    root.querySelector('.settings-grid').insertAdjacentHTML('beforeend',`<section class="path-card preference-card"><span class="eyebrow">READING PREFERENCES</span><h2>Make room for how you learn.</h2><label for="theme-preference">Color theme</label><select id="theme-preference"><option value="light" ${state.studio.theme==='light'?'selected':''}>Daylight</option><option value="dark" ${state.studio.theme==='dark'?'selected':''}>Night studio</option></select><label for="size-preference">Lesson text size</label><select id="size-preference"><option value="comfortable" ${state.studio.textSize==='comfortable'?'selected':''}>Comfortable</option><option value="large" ${state.studio.textSize==='large'?'selected':''}>Larger reading text</option></select><p class="fine-print">Your existing progress and backups remain compatible with Studio 02.</p></section>`);
+    root.querySelector('.settings-grid').insertAdjacentHTML('beforeend',`<section class="path-card preference-card"><span class="eyebrow">READING PREFERENCES</span><h2>Make room for how you learn.</h2><label for="theme-preference">Color theme</label><select id="theme-preference"><option value="light" ${state.studio.theme==='light'?'selected':''}>Daylight</option><option value="dark" ${state.studio.theme==='dark'?'selected':''}>Night studio</option></select><label for="size-preference">Lesson text size</label><select id="size-preference">${Object.entries(READING_SIZES).map(([key,value])=>`<option value="${key}" ${state.studio.textSize===key?'selected':''}>${value.label} · ${value.pixels}px</option>`).join('')}</select><p class="fine-print">High-contrast text, three reading sizes, and your existing progress in one place.</p></section>`);
     on('#theme-preference','change',e=>{state.studio.theme=e.target.value;save();applyPreferences();});
     on('#size-preference','change',e=>{state.studio.textSize=e.target.value;save();applyPreferences();});
   }

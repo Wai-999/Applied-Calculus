@@ -16,17 +16,21 @@ Production: https://wai-999.github.io/Applied-Calculus/
 
 The lessons supplement the book; they are not its full exposition or exercise bank. This independent companion is not affiliated with Pearson. All website explanations, scenarios and practice problems are original. The illustrative models are not empirical forecasts.
 
-Studio 02 adds 45 conceptual checks, 90 worked examples in total, symbol guides, 315 typeset formal/worked equations, progressive derivations, a prerequisite atlas, command search (Cmd/Ctrl+K), a formula library with retrieval mode, learning insights, focus mode, larger text and a night theme.
+Studio 02 introduced 45 conceptual checks, 90 worked examples in total, symbol guides, 315 typeset formal/worked equations, progressive derivations, a prerequisite atlas, command search (Cmd/Ctrl+K), a formula library with retrieval mode, learning insights, focus mode, larger text and a night theme.
+
+Studio 03 adds high-contrast text, 20/23/26px lesson reading sizes, 45 human-centered prediction scenarios, equation-to-explanation matching, guided investigations for every lab, a four-activity learning trail, reflection starters, and a prepared lesson guide with four kinds of help. Your application interest guides recommendations through the foundations you need. The concept map opens at a readable 150% scale with 100/150/200% controls. Participation remains separate from independent practice evidence.
 
 ## Start learning
 
 1. Take the readiness check, or start at **Learning path → 1.1 Functions**.
-2. Read why an idea matters. Predict what will happen in the visual experiment, change a control and explain the result.
-3. Work through the example, then answer the foundational questions, transfer challenge and conceptual check independently.
-4. Write a reflection and mark the lesson complete. Completion records exploration; question mastery separately records an independent correct answer.
-5. Use **Practice & review** for another attempt. Missed and assisted questions stay due; independent successes extend review intervals from 3 to 7, 14, 30 and 60 days.
-6. In **Book & resources**, attach your own PDF. Page buttons use the supplied edition’s 20-page front-matter offset. Other PDF editions may have different offsets.
-7. Export your progress regularly in **Progress & settings**. Storage belongs to the browser/origin: localhost and the published site have separate progress and book attachments.
+2. Choose an application interest on your workspace. Open a lesson, make a prediction, and read the response before exploring the idea.
+3. Match the equations to their explanations. Use **Help me understand** for plain words, a worked example, symbol help or a path out of being stuck.
+4. Follow the guided investigation: change a control, compare the graph and numbers, and explain what happened.
+5. Work through the example, then answer the foundational questions, transfer challenge and conceptual check independently.
+6. Write a reflection and mark the lesson complete. Completion records exploration; question mastery separately records an independent correct answer.
+7. Use **Practice & review** for another attempt. Missed and assisted questions stay due; independent successes extend review intervals from 3 to 7, 14, 30 and 60 days.
+8. In **Book & resources**, attach your own PDF. Page buttons use the supplied edition’s 20-page front-matter offset. Other PDF editions may have different offsets.
+9. Export your progress regularly in **Progress & settings**. Storage belongs to the browser/origin: localhost and the published site have separate progress and book attachments.
 
 ## Local development
 

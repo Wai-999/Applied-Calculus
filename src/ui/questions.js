@@ -24,6 +24,7 @@ export function bindQuestions(root, onAnswer = () => {}) {
       e.preventDefault(); if (complete) return;
       if (!Number.isFinite(parseAnswer(input.value))) { feedback.innerHTML = '<p class="feedback error">Use a number or fraction, such as 0.5 or 1/2.</p>'; return; }
       const correct = isCorrect(input.value, q.answer, q.tolerance ?? 0.01); record(correct, !assisted);
+      form.dispatchEvent(new CustomEvent('studio:attempt',{bubbles:true,detail:{lesson:id,correct}}));
       if (correct) {
         feedback.innerHTML = `<div class="feedback success"><strong>${assisted ? 'Now explain why that works.' : 'Correct — and ready to revisit later.'}</strong><p>${esc(q.solution)}</p><small>${assisted ? 'Try independently in review to strengthen recall.' : 'Your next review adapts to your sequence of independent answers.'}</small></div>`;
         finish(!assisted);
