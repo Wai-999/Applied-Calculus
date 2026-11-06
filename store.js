@@ -1,4 +1,6 @@
 export const STORAGE_KEY = 'applied-studio-v1';
+export const RECOVERY_KEY = 'applied-studio-recovery-v1';
+let recoveryBackup = null;
 export const emptyState = () => ({ version: 1, completed: [], attempts: {}, notes: {}, bookmarks: [], lastLesson: '1.1', activeDays: [], diagnostic: null });
 export function validateState(data) {
   const object = v => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -20,8 +22,22 @@ export function validateState(data) {
   return { ...emptyState(), ...data, attempts, completed: [...new Set(data.completed)], bookmarks: [...new Set(data.bookmarks)], activeDays: [...new Set(data.activeDays)] };
 }
 export function loadState(storage) {
-  try { const raw = storage.getItem(STORAGE_KEY); return raw ? validateState(JSON.parse(raw)) : emptyState(); }
-  catch { return emptyState(); }
+  let raw;
+  try { raw = storage.getItem(STORAGE_KEY); return raw ? validateState(JSON.parse(raw)) : emptyState(); }
+  catch {
+    if (typeof raw === 'string' && raw) {
+      recoveryBackup = raw;
+      try { storage.setItem(RECOVERY_KEY, raw); } catch { /* Keep the original in memory if storage is unavailable. */ }
+    }
+    return emptyState();
+  }
+}
+export function loadRecoveryBackup(storage) {
+  if (recoveryBackup !== null) return recoveryBackup;
+  try {
+    const raw = (storage ?? globalThis.localStorage).getItem(RECOVERY_KEY);
+    return typeof raw === 'string' && raw ? raw : null;
+  } catch { return null; }
 }
 export function dueQuestions(state, lessons, now = Date.now()) {
   const all = lessons.flatMap(l => l.questions.map((q, i) => ({ ...q, key: `${l.id}-${i}`, lesson: l })));

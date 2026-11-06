@@ -40,3 +40,29 @@ Browser execution used Chrome at explicit responsive viewport sizes; it does not
 
 The optional PDF attachment browser test was blocked by the Chrome extension's disabled local-file access. No browser permission was changed and no PDF was uploaded. Attachment validation, storage implementation, and page-reference tests were reviewed, but this audit does not claim a completed attachment-and-reload browser test. Extension-generated message-channel/Grammarly console messages occurred during automation and are distinct from application failures.
 
+## Follow-up recovery audit — 5 November 2026
+
+Continued from `7b82f3e` with failure recovery and keyboard transitions. Resolved these additional findings:
+
+- A blocked `localStorage` getter prevented startup. Storage access now occurs inside guarded calls.
+- Failed persistence still displayed a successful note save. Notes, restores, and resets now distinguish saved results from changes available only in the current session.
+- Unreadable saved data could be overwritten by a fresh session. Its original raw bytes are preserved separately under `applied-studio-recovery-v1`, with an in-memory fallback if storage is full. Settings provides an English/Burmese recovery download. Recovery data is never inserted into page markup or automatically imported.
+- Malformed optional conceptual-check records could crash workspace/insights or create misleading evidence. Invalid records are discarded while valid notes and independent results remain.
+- IndexedDB aborts, blocked opens, and synchronous transaction errors could leave book actions pending indefinitely. These paths now reject with existing localized errors; the previous attachment remains usable after failed writes.
+- Repeated book loads leaked object URLs, and an empty database could leave a stale link. URL replacement now releases old resources and clears missing records.
+- A failed attachment retained the file-input value, preventing selection of the same file from reliably triggering a retry. The input is now released and cleared after each attempt.
+- Resizing an open phone menu to desktop left the mobile keyboard trap active. The menu state and inert regions now reset, with focus moved to a visible navigation link.
+- Advancing between lesson panes left focus on the body after hiding the old button. Transitions now focus the selected mode tab. Guide-to-reasoning transitions wait for native dialog close before transferring focus.
+- Wider-screen checks exposed fixed-color brand text, keyboard shortcuts, learner badges, and hover backgrounds. These now use the active theme's tested color tokens.
+
+Verification for the follow-up:
+
+- **87/87 automated tests pass**, including 21 new book, storage, recovery UI, and navigation regressions.
+- Browser checks confirmed note and language persistence after reload, backup text containing the current note/preference, invalid JSON rejection, and corrected pane/guide/menu focus behavior.
+- An isolated local copy with a synthetic damaged record displayed the recovery card correctly in English and Burmese; the card survived reload. No production record was damaged or replaced.
+- **12 recovery-page layout and contrast checks** passed: three viewport widths (360/768/1440px), two languages, and two themes. Checks used fresh reloads to avoid measuring intermediate color transitions.
+- Recovery download handlers preserve the exact original bytes in automated tests. Browser download-event monitoring timed out, so this follow-up does **not** claim verification of the operating system's saved download file.
+- Browser PDF attachment remains limited by disabled extension file access. Six controlled IndexedDB tests cover success, abort, blocked open, setup errors, URL lifecycle, and invalid files; they do not replace the outstanding real-browser upload test.
+
+The existing Chrome-only and native-speaker/screen-reader verification limits still apply.
+

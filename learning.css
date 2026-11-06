@@ -26,7 +26,10 @@ small { line-height: 1.65; }
 .workspace { margin-left: 268px; width: calc(100% - 268px); }
 .workspace main { padding: 36px clamp(24px,3vw,52px) 64px; }
 .brand { font-size: 30px; letter-spacing: -1px; padding: 0 10px 30px; }
-.brand-sub { white-space: normal; font-size: 11px; letter-spacing: .04em; line-height: 1.45; }
+.brand-sub { white-space: normal; font-size: 11px; letter-spacing: .04em; line-height: 1.45; color: var(--muted); }
+.top-search kbd { color: var(--ink); background: var(--surface-soft); border-color: var(--border); }
+.learner-badge { color: var(--green); background: var(--surface-soft); }
+.button.secondary:hover,.nav-link:hover { background: var(--surface-soft); color: var(--ink); }
 .nav-label { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
 .nav-link { font-size: 16px; color: var(--muted); min-height: 46px; line-height: 1.5; gap: 10px; }
 .nav-link .icon { width: 19px; height: 19px; flex: none; }

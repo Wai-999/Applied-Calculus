@@ -62,4 +62,4 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for module boundaries, content contracts,
 
 ## Data and privacy
 
-Progress uses `localStorage` under `applied-studio-v1`. An attached PDF uses the IndexedDB database `applied-private-book`. Notes are escaped before display. Numeric inputs are parsed as numbers or fractions without `eval`. No learning data is sent to a server. Use export/import to move progress between devices. Clearing site data removes local progress and the attached PDF.
+Progress uses `localStorage` under `applied-studio-v1`. If a saved record cannot be read, its original is retained separately under `applied-studio-recovery-v1`, or in memory if storage is unavailable; settings offers a recovery download. An attached PDF uses the IndexedDB database `applied-private-book`. Notes are escaped before display. Numeric inputs are parsed as numbers or fractions without `eval`. No learning data is sent to a server. Use export/import to move progress between devices. Clearing site data removes local progress and the attached PDF.

@@ -1,5 +1,13 @@
 /** Shared interaction language, accessibility labels and model interpretation. */
 export const interfaceStrings={
+  "Not saved. Export a backup before leaving this page.":"မသိမ်းဆည်းနိုင်ပါ။ ဤစာမျက်နှာမှ မထွက်မီ အရန်ဖိုင် ထုတ်ယူပါ။",
+  "Backup opened for this session. Export it before leaving; browser storage is unavailable.":"ယခုအသုံးပြုနေစဉ်အတွက် အရန်မှတ်တမ်းကို ဖွင့်ထားပါသည်။ ဘရောက်ဇာ၌ မသိမ်းဆည်းနိုင်သောကြောင့် မထွက်မီ အရန်ဖိုင် ထုတ်ယူပါ။",
+  "Reset applies to this session only. Browser storage could not be updated.":"ယခုအသုံးပြုနေစဉ်အတွက်သာ မှတ်တမ်းကို ပြန်လည်စတင်ထားပါသည်။ ဘရောက်ဇာတွင် သိမ်းထားသည့် မှတ်တမ်းကို မပြင်ဆင်နိုင်ပါ။",
+  "RECOVER A SAVED RECORD":"သိမ်းထားသော မှတ်တမ်းကို ပြန်လည်ရယူရန်",
+  "Keep the original within reach.":"မူရင်းမှတ်တမ်းကို လက်လှမ်းမီရာတွင် သိမ်းထားပါ။",
+  "An unreadable saved record was set aside. Download the original record before closing this tab.":"ဖတ်၍မရသော သိမ်းဆည်းမှတ်တမ်းကို သီးခြားဖယ်ထားပါသည်။ ဤတက်ဘ်ကို မပိတ်မီ မူရင်းမှတ်တမ်းကို ဒေါင်းလုဒ်ယူပါ။",
+  "This original record may need repair before it can be imported. Your current progress backup is separate.":"ဤမူရင်းမှတ်တမ်းကို ပြန်သွင်းနိုင်ရန် ပြုပြင်ဖို့ လိုအပ်နိုင်ပါသည်။ လက်ရှိသင်ယူမှု၏ အရန်ဖိုင်နှင့် သီးခြားဖြစ်ပါသည်။",
+  "Download original record":"မူရင်းမှတ်တမ်းကို ဒေါင်းလုဒ်ယူရန်",
   "Language":"ဘာသာစကား",
   "Learning language":"လေ့လာရန် ဘာသာစကား",
   "The language pack could not load. Check your connection and try again.":"ဘာသာစကားအချက်အလက်ကို မဖွင့်နိုင်ပါ။ အင်တာနက်ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။",

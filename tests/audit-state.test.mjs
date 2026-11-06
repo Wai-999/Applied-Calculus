@@ -107,7 +107,7 @@ async function actionsHarness(){
   const mock=source=>moduleURL(`const h=globalThis[${JSON.stringify(key)}];\n`+source);
   const module=await isolatedModule('src/core/actions.js',{
     '../../data.js':mock('export const {lessons,diagnostic,book}=h;'),
-    '../../store.js':mock('export const {emptyState,validateState}=h;'),
+    '../../store.js':mock('export const {emptyState,validateState}=h;export const loadRecoveryBackup=()=>null;'),
     './session.js':mock("export let state=h.state;export function save(){h.saved=JSON.stringify(state);}export function touch(){}export function replaceState(value){state=value;state.studio??={language:'en'};h.state=state;save();}export function applyPreferences(){}"),
     '../ui/shared.js':mock('export const icon=()=>"",esc=String,lessonFor=()=>null;'),
     '../ui/feedback.js':mock('export const toast=message=>h.notices.push(message),confirmation=async()=>h.confirm;'),

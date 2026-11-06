@@ -26,8 +26,9 @@ export function mountLessonGuide(root,l,signal,switchView){
       dialog.querySelectorAll('[data-guide-panel]').forEach(p=>p.hidden=p.dataset.guidePanel!==button.dataset.guideTopic);
       dialog.querySelector('.guide-body').scrollTop=0;
     }));
-    dialog.querySelector('[data-guide-reason]').addEventListener('click',()=>{dialog.close();switchView('reason');});
-    dialog.addEventListener('close',()=>{dialog.remove();root.querySelector('[data-lesson-guide]')?.focus();},{once:true});
+    let continueReasoning=false;
+    dialog.querySelector('[data-guide-reason]').addEventListener('click',()=>{continueReasoning=true;dialog.close();});
+    dialog.addEventListener('close',()=>{dialog.remove();if(signal.aborted)return;if(continueReasoning)switchView('reason');else root.querySelector('[data-lesson-guide]')?.focus();},{once:true});
   },{signal});
   signal.addEventListener('abort',()=>dialog?.remove(),{once:true});
 }

@@ -57,6 +57,7 @@ export function mountLesson(root,l,signal){
     root.querySelector('.section-navigation').hidden=view!=='understand';
     history.replaceState(null,'',`#/lesson/${l.id}${view==='understand'?'':'?view='+view}`);
     root.querySelector('.lesson-tabs').scrollIntoView({block:'start',behavior:'instant'});
+    root.querySelector('[data-lesson-tab="'+view+'"]')?.focus({preventScroll:true});
   }
   root.querySelectorAll('[data-lesson-tab],[data-switch-view]').forEach(button=>button.addEventListener('click',()=>switchView(button.dataset.lessonTab||button.dataset.switchView),{signal}));
   root.querySelector('.lesson-tabs').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const tabs=[...root.querySelectorAll('[data-lesson-tab]')],i=tabs.indexOf(document.activeElement),next=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;switchView(tabs[next].dataset.lessonTab);tabs[next].focus();},{signal});

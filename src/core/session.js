@@ -4,12 +4,21 @@ import {normalizeGuided} from '../engine/engagement.js';
 import {PALETTES,READING_SIZES} from '../ui/design-tokens.js';
 
 const defaultStudio = () => ({ schema: 4, language:'en', theme: 'light', textSize: 'comfortable', focus: false, goal: 20, interest:'all', guided:{}, concepts: {}, reading: {}, confidence: {}, experiments: {}, events: [] });
-export let state = loadState(localStorage);
+export let state = loadState({
+  getItem: key => localStorage.getItem(key),
+  setItem: (key, value) => localStorage.setItem(key, value),
+});
 export function normalizeStudio(value) {
   const base = defaultStudio();
   if (!value || typeof value !== 'object' || Array.isArray(value)) return base;
-  for (const key of ['concepts', 'reading', 'confidence', 'experiments']) {
+  for (const key of ['reading', 'confidence', 'experiments']) {
     if (value[key] && typeof value[key] === 'object' && !Array.isArray(value[key])) base[key] = value[key];
+  }
+  if(value.concepts&&typeof value.concepts==='object'&&!Array.isArray(value.concepts)){
+    base.concepts=Object.fromEntries(Object.entries(value.concepts).filter(([id,record])=>{
+      if(!lessons.some(l=>l.id===id)||!record||typeof record!=='object'||Array.isArray(record))return false;
+      return typeof record.correct==='boolean'&&typeof record.independent==='boolean'&&(!record.independent||record.correct)&&Number.isFinite(record.at);
+    }));
   }
   base.theme = value.theme === 'dark' ? 'dark' : 'light';
   base.language=value.language==='my'?'my':'en';
@@ -23,10 +32,10 @@ export function normalizeStudio(value) {
 }
 state.studio = normalizeStudio(state.studio);
 export function save() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  catch { document.dispatchEvent(new CustomEvent('studio:notice', { detail: 'Storage is full or unavailable. Export your notes and progress to keep them.' })); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); return true; }
+  catch { document.dispatchEvent(new CustomEvent('studio:notice', { detail: 'Storage is full or unavailable. Export your notes and progress to keep them.' })); return false; }
 }
-export function replaceState(value) { state = value; state.studio = normalizeStudio(value.studio); save(); }
+export function replaceState(value) { state = value; state.studio = normalizeStudio(value.studio); return save(); }
 export function touch(lesson, kind = 'study') {
   const day = new Date().toLocaleDateString('en-CA');
   if (!state.activeDays.includes(day)) state.activeDays.push(day);
