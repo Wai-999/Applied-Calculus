@@ -26,6 +26,8 @@ Use **Language → မြန်မာဘာသာ · Burma** in the toolbar or s
 
 Studio 04 translates all 45 companion lessons and their practice, guides and activities. It adds a self-hosted Burmese font and preserves the current question when switching language. See [LOCALIZATION.md](LOCALIZATION.md) for research, scope and validation.
 
+The November 2026 maintenance audit improves mobile help placement, dark-theme contrast, keyboard search, saved learning state, and applied-model accuracy. See [AUDIT.md](AUDIT.md) for findings, regression coverage, browser checks, and verification limits.
+
 1. Take the readiness check, or start at **Learning path → 1.1 Functions**.
 2. Choose an application interest on your workspace. Open a lesson, make a prediction, and read the response before exploring the idea.
 3. Match the equations to their explanations. Use **Help me understand** for plain words, a worked example, symbol help or a path out of being stuck.

@@ -86,6 +86,10 @@ small { line-height: 1.65; }
 .path-step strong,.related-lesson,.lab-card-copy p { font-size: 17px; }
 .path-step small,.related-lesson > span { font-size: 14px; color: var(--muted); }
 .model-note p,.project-card ol,.project-result p,.empty-state p,.resource-book > div:last-child > p { font-size: 17px; color: var(--muted); }
+.model-note strong { color: var(--ink); font-size: 16px; }
+.tab-row > a.selected { color: var(--green); }
+.project-result { background: var(--surface-soft); }
+.project-result summary { color: var(--ink); font-size: 16px; line-height: 1.8; }
 .note-card > p { font-size: 19px; color: var(--ink); }
 .save-status,.answer-tolerance { font-size: 14px; color: var(--muted); line-height: 1.8; }
 textarea,.answer-input { font-size: 18px; color: var(--ink); line-height: 1.8; border-color: var(--border); background: var(--white); }
@@ -245,6 +249,11 @@ textarea::placeholder,.answer-input::placeholder { font-size: 16px; }
 
 /* An authored guide stays available without pretending to be live AI tutoring. */
 .lesson-guide-button { position: fixed; right: 25px; bottom: 22px; z-index: 25; display: flex; align-items: center; gap: 10px; font-size: 15px; padding: 14px 20px; border-radius: 30px; background: #285e40; color: #fffef5; border: 2px solid #d8e4c9; box-shadow: 0 5px 25px #173b2e26; min-height: 50px; }
+.lesson-modebar { position: sticky; top: 0; z-index: 20; display: flex; align-items: stretch; gap: 12px; padding: 9px 0; margin-bottom: 30px; background: var(--paper); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.lesson-modebar .lesson-tabs { position: static; flex: 1; min-width: 0; padding: 0; margin: 0; border: 0; }
+.lesson-modebar .lesson-tabs > button { min-width: 0; }
+.lesson-modebar .lesson-guide-button { position: static; flex: none; max-width: 180px; align-self: center; justify-content: center; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; box-shadow: none; padding: 10px 13px; background: var(--white); color: var(--green); font-size: 14px; line-height: 1.7; }
+.deep-section { scroll-margin-top: calc(var(--lesson-toolbar-height,110px) + 16px); }
 .lesson-guide-dialog { width: min(900px,calc(100% - 36px)); max-height: 88dvh; padding: 0; border: 1px solid var(--border); border-radius: 18px; background: var(--white); color: var(--ink); overflow: auto; box-shadow: 0 25px 100px #10251b44; }
 .lesson-guide-dialog::backdrop { background: #10251ba6; backdrop-filter: blur(4px); }
 .guide-header { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; padding: 28px 32px 10px; }
@@ -291,7 +300,14 @@ textarea::placeholder,.answer-input::placeholder { font-size: 16px; }
   .studio-hero { grid-template-columns: 1fr; }
   .hero-equation-art { display: none; }
 }
+@media(max-width:1000px) {
+  .lesson-modebar { flex-direction: column; gap: 4px; padding: 7px 0; }
+  .lesson-modebar .lesson-tabs > button { flex-direction: column; gap: 7px; }
+  .lesson-modebar .lesson-guide-button { align-self: flex-end; max-width: 100%; padding: 7px 12px; }
+}
 @media(max-width:760px) {
+  .lesson-modebar { flex-direction: column; gap: 4px; padding: 7px 0; margin-bottom: 24px; }
+  .lesson-modebar .lesson-guide-button { align-self: flex-end; max-width: 100%; padding: 7px 12px; }
   .workspace { margin-left: 0; width: 100%; }
   .workspace main { padding: 28px 22px 86px; }
   .sidebar { width: min(310px,88vw); padding: 28px 20px; }

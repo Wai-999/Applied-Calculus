@@ -35,7 +35,7 @@ export function mountTerminology(root,params,signal){
   search.addEventListener('input',filter,{signal});category.addEventListener('change',filter,{signal});
   root.querySelectorAll('[data-term-suggest]').forEach(button=>button.addEventListener('click',()=>{
     search.value=button.dataset.termSuggest;category.value='all';filter();
-    const first=[...root.querySelectorAll('[data-term-id]')].find(card=>!card.hidden);if(first){first.open=true;first.scrollIntoView({block:'start',behavior:'instant'});}else search.focus();
+    const first=[...root.querySelectorAll('[data-term-id]')].find(card=>!card.hidden);if(first){first.open=true;first.querySelector('summary')?.focus({preventScroll:true});first.scrollIntoView({block:'start',behavior:'instant'});}else search.focus();
   },{signal}));
   filter();
   const selected=root.querySelector('#term-'+CSS.escape(params.get('term')||''));

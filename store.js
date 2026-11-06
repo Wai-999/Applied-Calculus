@@ -8,11 +8,16 @@ export function validateState(data) {
   if (data.lastLesson !== undefined && !section(data.lastLesson)) throw new Error('Invalid last lesson.');
   if (data.diagnostic != null && (!object(data.diagnostic) || !Number.isInteger(data.diagnostic.score) || data.diagnostic.score < 0 || data.diagnostic.score > 5 || !Number.isFinite(data.diagnostic.date))) throw new Error('Invalid readiness check.');
   if (Object.values(data.notes).some(x => typeof x !== 'string')) throw new Error('Invalid notes.');
+  const attempts = {};
   for (const [key,a] of Object.entries(data.attempts)) {
     if (!section(key.split('-')[0]) || !/^[1-8]\.[1-7]-[0-3]$/.test(key)) throw new Error('Invalid practice question.');
     if (!a || !Number.isInteger(a.correct) || !Number.isInteger(a.total) || a.correct < 0 || a.total < a.correct || !Number.isFinite(a.last) || typeof a.mastered !== 'boolean') throw new Error('Invalid practice records.');
+    const record = { ...a };
+    if (record.dueAt !== undefined && !Number.isFinite(record.dueAt)) delete record.dueAt;
+    if (record.streak !== undefined && (!Number.isInteger(record.streak) || record.streak < 0)) delete record.streak;
+    attempts[key] = record;
   }
-  return { ...emptyState(), ...data, completed: [...new Set(data.completed)], bookmarks: [...new Set(data.bookmarks)], activeDays: [...new Set(data.activeDays)] };
+  return { ...emptyState(), ...data, attempts, completed: [...new Set(data.completed)], bookmarks: [...new Set(data.bookmarks)], activeDays: [...new Set(data.activeDays)] };
 }
 export function loadState(storage) {
   try { const raw = storage.getItem(STORAGE_KEY); return raw ? validateState(JSON.parse(raw)) : emptyState(); }

@@ -1,4 +1,4 @@
-import {burmeseText,lessonSearchText,ensureBurmese} from '../i18n/core.js';
+import {burmeseText,lessonSearchText,ensureBurmese,localizeTree} from '../i18n/core.js';
 import {lessons,labCatalog,areas} from '../../data.js';
 import {details} from '../content/index.js';
 import {searchIndex} from '../engine/learning.js';
@@ -15,14 +15,32 @@ const entries=()=>[
 export function openCommand(){
   if(document.querySelector('.command-dialog'))return;
   const previous=document.activeElement,dialog=document.createElement('dialog');dialog.className='command-dialog';dialog.setAttribute('aria-labelledby','command-title');
-  dialog.innerHTML=`<div class="command-input">${icon('search')}<label class="sr-only" id="command-title" for="command-query">Search lessons, labs and applications</label><input id="command-query" type="search" placeholder="What do you want to understand?" autocomplete="off"><button class="text-button" data-close-command aria-label="Close search">Esc</button></div><div class="command-results" role="list"></div><div class="command-footer"><span>↑ ↓ to move · Enter to open</span><span>Search your entire studio</span></div>`;
+  dialog.innerHTML=`<div class="command-input">${icon('search')}<label class="sr-only" id="command-title" for="command-query">Search lessons, labs and applications</label><input id="command-query" type="search" placeholder="What do you want to understand?" autocomplete="off" aria-controls="command-results"><button class="text-button" data-close-command aria-label="Close search">Esc</button></div><div class="command-results" id="command-results" role="list"></div><p class="sr-only" data-command-status role="status" aria-live="polite" aria-atomic="true"></p><div class="command-footer"><span>↑ ↓ to move · Enter to open</span><span>Search your entire studio</span></div>`;
   let current=0,results=[];
-  const close=()=>{dialog.close();dialog.remove();previous?.focus();};
-  const paint=()=>{results=searchIndex(dialog.querySelector('input').value,entries());current=0;dialog.querySelector('.command-results').innerHTML=results.length?results.map((r,i)=>`<a role="listitem" class="command-result ${i===0?'command-current':''}" href="#${r.path}"><span><small>${r.tag}</small><strong>${esc(r.title)}</strong></span>${icon('arrow')}</a>`).join(''):'<p class="command-empty">No matches. Try a term such as “growth”, “cost” or “integral”.</p>';};
+  const input=dialog.querySelector('input');
+  const close=()=>dialog.close();
+  dialog.addEventListener('close',()=>{dialog.remove();if(previous?.isConnected)previous.focus();},{once:true});
+  const paint=()=>{
+    results=searchIndex(input.value,entries());current=0;
+    dialog.querySelector('.command-results').innerHTML=results.length?results.map((r,i)=>`<div role="listitem"><a class="command-result ${i===0?'command-current':''}" href="#${r.path}"><span><small>${r.tag}</small><strong>${esc(r.title)}</strong></span>${icon('arrow')}</a></div>`).join(''):'<p class="command-empty">No matches. Try a term such as “growth”, “cost” or “integral”.</p>';
+    dialog.querySelector('[data-command-status]').textContent=results.length+' search results';
+    localizeTree(dialog);
+  };
   dialog.querySelector('input').addEventListener('input',async()=>{const query=dialog.querySelector('input').value;if(/[\u1000-\u109f]/.test(query))try{await ensureBurmese();}catch{}if(dialog.isConnected)paint();});
   dialog.querySelector('[data-close-command]').addEventListener('click',close);
   dialog.addEventListener('click',e=>{if(e.target.closest('.command-result'))close();});
   dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
-  dialog.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();current=(current+(e.key==='ArrowDown'?1:-1)+results.length)%Math.max(1,results.length);dialog.querySelectorAll('.command-result').forEach((a,i)=>a.classList.toggle('command-current',i===current));dialog.querySelectorAll('.command-result')[current]?.scrollIntoView({block:'nearest'});}if(e.key==='Enter'&&results[current]){e.preventDefault();location.hash=results[current].path;close();}});
-  document.body.append(dialog);dialog.showModal();paint();dialog.querySelector('input').focus();
+  dialog.addEventListener('focusin',e=>{const links=[...dialog.querySelectorAll('.command-result')],index=links.indexOf(e.target);if(index<0)return;current=index;links.forEach((a,i)=>a.classList.toggle('command-current',i===current));});
+  dialog.addEventListener('keydown',e=>{
+    if(e.isComposing)return;
+    const links=[...dialog.querySelectorAll('.command-result')],index=links.indexOf(e.target);
+    if((e.key==='ArrowDown'||e.key==='ArrowUp')&&(e.target===input||index>=0)&&links.length){
+      e.preventDefault();
+      current=e.target===input?(e.key==='ArrowDown'?0:links.length-1):(index+(e.key==='ArrowDown'?1:-1)+links.length)%links.length;
+      links.forEach((a,i)=>a.classList.toggle('command-current',i===current));
+      links[current].focus();links[current].scrollIntoView({block:'nearest'});
+    }
+    if(e.key==='Enter'&&e.target===input&&results[current]){e.preventDefault();location.hash=results[current].path;close();}
+  });
+  document.body.append(dialog);paint();dialog.showModal();input.focus();
 }

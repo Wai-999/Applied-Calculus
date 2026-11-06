@@ -21,7 +21,10 @@ export function matchesLesson(query,lesson){
 }
 export const normalizeQuery=normalizeSearch;
 export function sourceText(element){
-  if(element.nodeType===3)return texts.get(element)?.source||element.data;
+  if(element.nodeType===3){
+    const previous=texts.get(element);
+    return previous&&element.data===previous.output?previous.source:element.data;
+  }
   return [...element.childNodes].map(sourceText).join('');
 }
 

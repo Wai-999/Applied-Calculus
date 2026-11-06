@@ -1,4 +1,5 @@
 import {details} from '../content/index.js';
+import {localizeTree} from '../i18n/core.js';
 import {esc,icon,lessonFor} from './shared.js';
 import {math} from './math.js';
 
@@ -18,7 +19,7 @@ export function mountLessonGuide(root,l,signal,switchView){
     ];
     dialog=document.createElement('dialog');dialog.className='lesson-guide-dialog';dialog.setAttribute('aria-labelledby','guide-heading');
     dialog.innerHTML=`<header class="guide-header"><div><span class="eyebrow">YOUR LESSON GUIDE · ${l.id}</span><h2 id="guide-heading">Let’s make it clearer.</h2></div><button class="icon-button" data-close-guide aria-label="Close lesson guide">${icon('close')}</button></header><p class="guide-description">Prepared explanations for this lesson. Choose the kind of help you need.</p><nav class="guide-topics" aria-label="Kinds of lesson help">${topics.map(([id,label],i)=>`<button data-guide-topic="${id}" aria-pressed="${i===0}">${label}</button>`).join('')}</nav><div class="guide-body">${topics.map(([id,,html],i)=>`<section data-guide-panel="${id}" ${i?'hidden':''}>${html}</section>`).join('')}</div>`;
-    document.body.append(dialog);dialog.showModal();
+    document.body.append(dialog);localizeTree(dialog);dialog.showModal();
     dialog.querySelector('[data-close-guide]').addEventListener('click',()=>dialog.close());
     dialog.querySelectorAll('[data-guide-topic]').forEach(button=>button.addEventListener('click',()=>{
       dialog.querySelectorAll('[data-guide-topic]').forEach(b=>b.setAttribute('aria-pressed',b===button));

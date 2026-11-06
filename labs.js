@@ -4,7 +4,7 @@ const config = {
   functions: { formula:'y = a(x − h)² + k', prompt:'Predict which way the vertex will move before changing h.', controls:[['a','Vertical scale',0.5,3,0.5,1],['h','Horizontal shift',0,8,0.5,3],['k','Vertical shift',0,10,1,2]] },
   limits: { formula:'f(x) = (x² − 4)/(x − 2), x ≠ 2', prompt:'The point at x = 2 is missing. What do both sides approach?',controls:[['h','Distance from 2',0.01,1,0.01,0.7]] },
   derivative: { formula:'f(x) = x²   ·   f′(x) = 2x', prompt:'Shrink h. What happens to the secant slope as the points move together?', controls:[['x','Starting input x',0.5,4,0.5,2],['h','Interval h',0.05,2,0.05,1.5]] },
-  profit: { formula:'P(q) = (a − c)q − 0.5q² − 400',prompt:'Predict: is producing one more unit always better?',controls:[['q','Quantity produced',0,120,1,35],['a','Starting price a ($)',40,100,5,80],['c','Unit cost c ($)',5,35,5,20]] },
+  profit: { formula:'P(q) = (a − c)q − 0.5q² − 400   ·   p(q) = a − 0.5q ≥ 0',prompt:'Predict: is producing one more unit always better?',controls:[['q','Quantity produced',0,120,1,35],['a','Starting price a ($)',40,100,5,80],['c','Unit cost c ($)',5,35,5,20]] },
   optimization: { formula:'P(q) = 60q − 0.5q² − 400   ·   P′(q) = 60 − q',prompt:'Find where the slope changes from positive to negative.',controls:[['q','Quantity produced',0,120,1,35]] },
   growth: { formula:'N(t) = 100eʳᵗ',prompt:'Try a negative rate. Compare the direction of change with the size of the population.', controls:[['r','Continuous rate r (per hour)',-0.3,0.4,0.01,0.2],['t','Time (hours)',0,10,0.25,5]] },
   elasticity: { formula:'D(p) = 120 − 2p   ·   R(p) = pD(p)',prompt:'Find the price where elasticity is 1. What happens to revenue on either side?', controls:[['p','Price ($)',1,59,1,20]] },
@@ -20,18 +20,26 @@ export function renderLab(id, instance = 'lab') {
   const c = config[id];
   return `<section class="lab" data-lab="${id}"><div class="lab-top"><span class="eyebrow">LIVE EXPERIMENT</span><span class="live-dot">Interactive model</span></div><p class="lab-formula">${c.formula}</p><div class="lab-chart"></div><div class="lab-controls">${c.controls.map(([name,label,min,max,step,value])=>`<div class="slider-row"><label for="${instance}-${name}">${label}<output for="${instance}-${name}" data-value="${name}">${value}</output></label><input type="range" id="${instance}-${name}" name="${name}" min="${min}" max="${max}" step="${step}" value="${value}"></div>`).join('')}</div><div class="lab-results" aria-live="polite" aria-atomic="true"></div><p class="lab-prompt"><strong>Notice & wonder</strong> ${c.prompt}</p></section>`;
 }
+let chartSequence=0;
 function chart({curves=[],xmax=10,xmin=0,ymax=100,ymin=0,xlabel='Input',ylabel='Output',areas=[],points=[],extra='',description=''}) {
   const W=640,H=310,l=62,r=23,t=24,b=46;
+  const clipId=`lab-plot-${++chartSequence}`;
   const X=x=>l+(x-xmin)/(xmax-xmin)*(W-l-r),Y=y=>H-b-(y-ymin)/(ymax-ymin)*(H-t-b);
-  const path = fn => Array.from({length:161},(_,i)=>{const x=xmin+(xmax-xmin)*i/160; return `${i?'L':'M'}${X(x).toFixed(2)},${Y(Math.max(ymin,Math.min(ymax,fn(x)))).toFixed(2)}`;}).join(' ');
+  const path = fn => Array.from({length:161},(_,i)=>{const x=xmin+(xmax-xmin)*i/160; return `${i?'L':'M'}${X(x).toFixed(2)},${Y(fn(x)).toFixed(2)}`;}).join(' ');
   const areaPath=(fn,lower,a,b)=>{const xs=Array.from({length:81},(_,i)=>a+(b-a)*i/80);return [...xs.map((x,i)=>`${i?'L':'M'}${X(x)},${Y(fn(x))}`),...xs.reverse().map(x=>`L${X(x)},${Y(lower(x))}`),'Z'].join(' ');};
   let grid='';
   for(let i=0;i<=4;i++){let x=xmin+(xmax-xmin)*i/4,y=ymin+(ymax-ymin)*i/4;grid+=`<line x1="${X(x)}" y1="${t}" x2="${X(x)}" y2="${H-b}" stroke="#e0e6dc"/><line x1="${l}" y1="${Y(y)}" x2="${W-r}" y2="${Y(y)}" stroke="#e0e6dc"/><text x="${X(x)}" y="${H-b+20}" text-anchor="middle">${fmt(x,2)}</text><text x="${l-10}" y="${Y(y)+4}" text-anchor="end">${fmt(y,1)}</text>`;}
-  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${description}"><title>${description}</title>${grid}${areas.map(a=>`<path d="${areaPath(a.fn,a.lower||(()=>0),a.a??xmin,a.b??xmax)}" fill="${a.color||green}" opacity=".14"/>`).join('')}${extra ? extra({X,Y}) : ''}${curves.map(c=>`<path d="${path(c.fn)}" fill="none" stroke="${c.color||green}" stroke-width="${c.dashed?2:3}" ${c.dashed?'stroke-dasharray="6 5"':''} stroke-linecap="round"/>`).join('')}${points.map(p=>`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${p.open?6:5}" fill="${p.open?'#f9faf4':p.color||green}" stroke="${p.color||green}" stroke-width="${p.open?3:2}"/>`).join('')}<text x="${(W+l-r)/2}" y="${H-3}" text-anchor="middle" class="axis-label">${xlabel}</text><text x="${l}" y="13" class="axis-label">${ylabel}</text></svg>`;
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="${description}"><title>${description}</title><defs><clipPath id="${clipId}"><rect x="${l}" y="${t}" width="${W-l-r}" height="${H-t-b}"/></clipPath></defs>${grid}<g clip-path="url(#${clipId})">${areas.map(a=>`<path d="${areaPath(a.fn,a.lower||(()=>0),a.a??xmin,a.b??xmax)}" fill="${a.color||green}" opacity=".14"/>`).join('')}${extra ? extra({X,Y}) : ''}${curves.map(c=>`<path d="${path(c.fn)}" fill="none" stroke="${c.color||green}" stroke-width="${c.dashed?2:3}" ${c.dashed?'stroke-dasharray="6 5"':''} stroke-linecap="round"/>`).join('')}${points.map(p=>`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${p.open?6:5}" fill="${p.open?'#f9faf4':p.color||green}" stroke="${p.color||green}" stroke-width="${p.open?3:2}"/>`).join('')}</g><text x="${(W+l-r)/2}" y="${H-3}" text-anchor="middle" class="axis-label">${xlabel}</text><text x="${l}" y="13" class="axis-label">${ylabel}</text></svg>`;
 }
 const stat=(label,value)=>`<div><span>${label}</span><strong>${value}</strong></div>`;
 export function updateLab(root) {
-  const id=root.dataset.lab,p=Object.fromEntries([...root.querySelectorAll('input')].map(e=>[e.name,Number(e.value)]));
+  const id=root.dataset.lab,inputs=[...root.querySelectorAll('input')],p=Object.fromEntries(inputs.map(e=>[e.name,Number(e.value)]));
+  if(id==='profit'){
+    const quantity=inputs.find(input=>input.name==='q'),maximum=Math.min(120,2*p.a);
+    quantity.max=String(maximum);
+    p.q=Math.min(p.q,maximum);
+    quantity.value=String(p.q);
+  }
   root.querySelectorAll('output').forEach(e=>{e.value=fmt(p[e.dataset.value],2);});
   let plot='',stats='',insight='';
   if(id==='functions') {
@@ -46,8 +54,8 @@ export function updateLab(root) {
     plot=chart({curves:[{fn:f},{fn:x=>f(p.x)+m*(x-p.x),color:coral,dashed:true},{fn:x=>f(p.x)+2*p.x*(x-p.x),color:blue,dashed:true}],xmax:6,ymax:36,ymin:-4,points:[{x:p.x,y:f(p.x)},{x:p.x+p.h,y:f(p.x+p.h),color:coral}],xlabel:'x',ylabel:'f(x) = x²',description:`Green curve x squared, coral secant slope ${fmt(m,2)}, blue tangent slope ${2*p.x}`});
     stats=stat('Secant slope',fmt(m,2))+stat('Tangent slope',fmt(2*p.x,2))+stat('Slope difference',fmt(p.h,2)); insight='Coral is the secant through two points; blue is the tangent at the starting point.';
   } else if(id==='profit'||id==='optimization') {
-    const a=p.a??80,c=p.c??20,fn=x=>profit(x,a,c),best=optimalQuantity(a,c),peak=fn(best),slope=a-c-p.q;
-    plot=chart({curves:[{fn},{fn:x=>fn(p.q)+slope*(x-p.q),color:coral,dashed:true}],xmax:120,ymax:Math.max(peak+200,100),ymin:Math.min(fn(0),fn(120))-100,points:[{x:p.q,y:fn(p.q)},{x:best,y:peak,color:coral}],xlabel:'Quantity (units)',ylabel:'Profit ($)',description:`Profit curve; chosen quantity ${p.q} yields ${fmt(fn(p.q))} dollars, maximum ${fmt(peak)} at ${best} units`});
+    const a=p.a??80,c=p.c??20,fn=x=>profit(x,a,c),maximum=Math.min(120,2*a),best=optimalQuantity(a,c),peak=fn(best),slope=a-c-p.q;
+    plot=chart({curves:[{fn},{fn:x=>fn(p.q)+slope*(x-p.q),color:coral,dashed:true}],xmax:maximum,ymax:Math.max(peak+200,100),ymin:Math.min(fn(0),fn(maximum))-100,points:[{x:p.q,y:fn(p.q)},{x:best,y:peak,color:coral}],xlabel:'Quantity (units)',ylabel:'Profit ($)',description:`Profit curve; chosen quantity ${p.q} yields ${fmt(fn(p.q))} dollars, maximum ${fmt(peak)} at ${best} units`});
     stats=stat('Your profit',`$${fmt(fn(p.q))}`)+stat('Marginal profit',`$${fmt(slope)}/unit`)+stat('Best quantity',`${fmt(best)} units`); insight=`The coral point is the optimum (${fmt(best)} units, $${fmt(peak)}). The dashed line is the slope at your quantity. Fixed cost is $400.`;
   } else if(id==='growth') {
     const f=x=>population(x,p.r);
@@ -63,7 +71,7 @@ export function updateLab(root) {
     stats=stat('Rectangle estimate',`${fmt(sum,2)} L`)+stat('Exact total',`${fmt(exact,2)} L`)+stat('Underestimate',`${fmt(exact-sum,2)} L`); insight='Flow is increasing, so left-endpoint rectangles miss some area. More slices reduce this underestimate.';
   } else if(id==='surplus') {
     const d=x=>p.a-0.5*x,s=x=>p.b+0.5*x,q=p.a-p.b,price=(p.a+p.b)/2,surplus=q*q/4;
-    plot=chart({curves:[{fn:d},{fn:s,color:blue},{fn:()=>price,color:coral,dashed:true}],areas:[{fn:d,lower:()=>price,a:0,b:q},{fn:()=>price,lower:s,a:0,b:q,color:blue}],xmax:100,ymax:100,points:[{x:q,y:price}],xlabel:'Quantity (units)',ylabel:'Price ($)',description:`Green demand and blue supply intersect at ${q} units and ${price} dollars; each surplus is ${surplus} dollars`});
+    plot=chart({curves:[{fn:d},{fn:s,color:blue},{fn:()=>price,color:coral,dashed:true}],areas:[{fn:d,lower:()=>price,a:0,b:q},{fn:()=>price,lower:s,a:0,b:q,color:blue}],xmax:Math.min(100,2*p.a),ymax:100,points:[{x:q,y:price}],xlabel:'Quantity (units)',ylabel:'Price ($)',description:`Green demand and blue supply intersect at ${q} units and ${price} dollars; each surplus is ${surplus} dollars`});
     stats=stat('Equilibrium',`${q} units · $${fmt(price)}`)+stat('Consumer surplus',`$${fmt(surplus)}`)+stat('Producer surplus',`$${fmt(surplus)}`); insight='Green shades consumer surplus above price; blue shades producer surplus below price. Their equality here comes from the model’s equal and opposite slopes.';
   } else if(id==='inequality') {
     plot=chart({curves:[{fn:x=>x,color:blue,dashed:true},{fn:x=>x**p.a}],areas:[{fn:x=>x,lower:x=>x**p.a}],xmax:1,ymax:1,xlabel:'Cumulative population share',ylabel:'Cumulative income share',description:`Lorenz curve x to power ${p.a}, with Gini index ${fmt(1-2/(p.a+1),3)}`});

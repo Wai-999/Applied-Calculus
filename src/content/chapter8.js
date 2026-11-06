@@ -17,7 +17,7 @@ D('8.2',['3.4','4.2','8.1'],'Differentiate a periodic model and distinguish peak
 'The original quantity is highest when its rate is zero and changes from positive to negative. Its fastest increase usually occurs while passing the baseline, not at the peak level. The frequency multiplier increases the derivative’s amplitude.'],
 'With radian input, d(sin x)/dx=cos x and d(cos x)/dx=−sin x. For y=M+A sin(ωt), y′=Aω cos(ωt).',
 'y\'(t)=A§omega§cos(§omega t)',
-[['Aω','Amplitude of the rate, in output units per time.'],['Radians','Required angle convention for these unmodified derivative formulas.'],['Phase','Relative timing of the amount and its rate.']],
+[['|Aω|','Amplitude of the rate, in output units per time.'],['Radians','Required angle convention for these unmodified derivative formulas.'],['Phase','Relative timing of the amount and its rate.']],
 [['y=M+A§sin(§omega t)','Start with the amount model.'],['y\'=A§omega§cos(§omega t)','Include the derivative of the inner angle.'],['y\'\'=-A§omega^2§sin(§omega t)','Differentiate again to inspect concavity or acceleration.']],
 E('When is demand changing fastest?','For D(t)=80+15 sin(πt/6), time is in months.',
 [['D\'(t)=§frac{5§pi}{2}§cos(§pi t/6)','The coefficient 15 is multiplied by π/6.'],['D\'(0)=5§pi/2§approx7.85','The fastest increase occurs at the upward baseline crossing.'],['D\'(3)=0,§quad D(3)=95','At the demand peak, instantaneous change is zero.']],

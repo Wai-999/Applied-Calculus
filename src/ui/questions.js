@@ -17,7 +17,7 @@ export function bindQuestions(root, onAnswer = () => {}) {
     let assisted = false, complete = false;
     function record(correct, independent) {
       if (id === 'diagnostic') diagnosticResults.set(key, { correct, independent });
-      else { state.attempts[key] = scheduleAttempt(state.attempts[key], correct, independent); touch(id, 'practice'); save(); }
+      else { state.attempts[key] = scheduleAttempt(state.attempts[key], correct, independent); form.querySelector('.question-status').textContent=state.attempts[key].mastered?'✓ Independently solved':''; touch(id, 'practice'); save(); }
     }
     function finish(independent) { complete = true; input.readOnly = true; form.querySelector('[type=submit]').disabled = true; onAnswer(independent); }
     form.addEventListener('submit', e => {

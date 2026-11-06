@@ -13,7 +13,9 @@ let lifecycle=new AbortController(),sequence=0,previous='';
 export function readRoute(){const [path,query]=(location.hash.slice(1)||'/').split('?');return {path,params:new URLSearchParams(query)};}
 export function navigate(path){if(location.hash==='#'+path)render();else location.hash=path;}
 export async function render(){
-  const ticket=++sequence,{path,params}=readRoute(),parts=path.split('/').filter(Boolean),key=path+'?'+params.toString();
+  const ticket=++sequence,{path,params}=readRoute(),parts=path.split('/').filter(Boolean),sessionParams=new URLSearchParams(params);
+  sessionParams.delete('lang');
+  const key=path+'?'+sessionParams.toString();
   lifecycle.abort();lifecycle=new AbortController();const signal=lifecycle.signal;
   document.body.dataset.page=parts[0]||'home';document.body.classList.remove('menu-open');applyPreferences();
   try{
@@ -22,17 +24,17 @@ export async function render(){
     if(ticket!==sequence)return;
     let html,mount=()=>{},answer=()=>{};
     if(parts[0]==='terminology'){
-      const page=await import('../pages/terminology.js');html=page.terminologyPage(params);mount=()=>page.mountTerminology(app,params,signal);
+      const page=await import('../pages/terminology.js');if(ticket!==sequence)return;html=page.terminologyPage(params);mount=()=>page.mountTerminology(app,params,signal);
     }else if(path==='/'||['atlas','glossary','insights'].includes(parts[0])){
-      const page=await import('../pages/explore.js');html=path==='/'?page.workspacePage():parts[0]==='atlas'?page.atlasPage(params):parts[0]==='glossary'?page.glossaryPage():page.insightsPage();
+      const page=await import('../pages/explore.js');if(ticket!==sequence)return;html=path==='/'?page.workspacePage():parts[0]==='atlas'?page.atlasPage(params):parts[0]==='glossary'?page.glossaryPage():page.insightsPage();
     }else if(parts[0]==='lesson'&&lessons.some(l=>l.id===parts[1])){
-      const page=await import('../pages/lesson.js'),lesson=lessons.find(l=>l.id===parts[1]);html=page.lessonPage(lesson,params);mount=()=>page.mountLesson(app,lesson,signal);answer=()=>page.updateEvidence(app,lesson.id);
+      const page=await import('../pages/lesson.js');if(ticket!==sequence)return;const lesson=lessons.find(l=>l.id===parts[1]);html=page.lessonPage(lesson,params);mount=()=>page.mountLesson(app,lesson,signal);answer=()=>page.updateEvidence(app,lesson.id);
     }else if(parts[0]==='practice'){
-      const page=await import('../pages/practice.js');if(key!==previous)page.resetPractice();html=page.practicePage(params);
+      const page=await import('../pages/practice.js');if(ticket!==sequence)return;if(key!==previous)page.resetPractice();html=page.practicePage(params);
       mount=()=>{app.querySelector('[data-next]')?.addEventListener('click',()=>{page.nextQuestion();render();},{signal});app.querySelector('[data-restart]')?.addEventListener('click',()=>{page.resetPractice();render();},{signal});app.querySelector('[data-focus-practice]')?.addEventListener('click',()=>{page.resetPractice();navigate('/practice?section='+app.querySelector('#practice-section').value);},{signal});};
       answer=independent=>{page.registerSessionAnswer(independent);const next=app.querySelector('[data-next]');if(next)next.hidden=false;};
     }else{
-      const page=await import('../pages/standard.js');
+      const page=await import('../pages/standard.js');if(ticket!==sequence)return;
       if(parts[0]==='learn')html=page.learn(params);
       else if(parts[0]==='applications'&&areas.some(a=>a.id===parts[1]))html=page.applicationPage(areas.find(a=>a.id===parts[1]));
       else if(parts[0]==='labs')html=page.labsPage(parts[1]);
@@ -49,8 +51,9 @@ export async function render(){
     document.title=(app.querySelector('h1')?.textContent||'Your studio')+' · Applied';
     document.body.classList.remove('menu-open');window.scrollTo({top:0,behavior:'instant'});app.querySelector('#main')?.focus({preventScroll:true});
   }catch(error){
+    if(ticket!==sequence)return;
     console.error(error);
-    if(ticket===sequence)app.innerHTML='<main class="route-error"><h1>This connection needs another try.</h1><p>Your saved progress is still in this browser. Reload to try again.</p><button class="button primary" id="retry-route">Try again</button></main>';
+    app.innerHTML='<main class="route-error"><h1>This connection needs another try.</h1><p>Your saved progress is still in this browser. Reload to try again.</p><button class="button primary" id="retry-route">Try again</button></main>';
     app.querySelector('#retry-route')?.addEventListener('click',()=>render(),{once:true});
   }
 }

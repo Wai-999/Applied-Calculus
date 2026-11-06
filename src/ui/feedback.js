@@ -1,4 +1,5 @@
 import { esc } from './shared.js';
+import {localizeTree} from '../i18n/core.js';
 let toastTimer;
 export function toast(message) {
   const el = document.querySelector('#toast');
@@ -16,6 +17,6 @@ export function confirmation(message, action) {
     dialog.querySelector('[data-cancel]').addEventListener('click', () => finish(false));
     dialog.querySelector('[data-confirm]').addEventListener('click', () => finish(true));
     dialog.addEventListener('cancel', e => { e.preventDefault(); finish(false); });
-    document.body.append(dialog); dialog.showModal(); dialog.querySelector('[data-cancel]').focus();
+    document.body.append(dialog); localizeTree(dialog); dialog.showModal(); dialog.querySelector('[data-cancel]').focus();
   });
 }

@@ -5,6 +5,7 @@ export function dynamicMessage(text,t){
   if((m=text.match(/^(\d+)\/(\d+) activities tried$/)))return `လှုပ်ရှားမှု ${m[2]} ခုအနက် ${m[1]} ခု စမ်းသပ်ပြီး`;
   if((m=text.match(/^(\d+)% evidence (of understanding|from independent checks)$/)))return `အကူအညီမပါသော စစ်ဆေးချက်များမှ နားလည်မှုအထောက်အထား ${m[1]}%`;
   if((m=text.match(/^(\d+) of (\d+) terms$/)))return `ဝေါဟာရ ${m[2]} ခုအနက် ${m[1]} ခု`;
+  if((m=text.match(/^(\d+) search results$/)))return `ရှာဖွေမှုရလဒ် ${m[1]} ခု`;
   if((m=text.match(/^(\d+)\/(\d+) lessons explored · (\d+)\/(\d+) questions independently solved$/)))return `သင်ခန်းစာ ${m[2]} ခုအနက် ${m[1]} ခု လေ့လာပြီး · မေးခွန်း ${m[4]} ခုအနက် ${m[3]} ခု အကူအညီမပါဘဲ ဖြေမှန်ပြီး`;
   if((m=text.match(/^(\d+)\/(\d+) explored$/)))return `${m[2]} ခုအနက် ${m[1]} ခု လေ့လာပြီး`;
   if((m=text.match(/^(\d+) submitted attempts, including assisted retries\.$/)))return `အကူအညီဖြင့် ပြန်ဖြေသည့် အကြိမ်များအပါအဝင် စုစုပေါင်း ${m[1]} ကြိမ် ဖြေဆိုထားသည်။`;

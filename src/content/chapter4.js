@@ -53,7 +53,7 @@ D('4.5',['2.3','4.1'],'Find the best value on a closed feasible interval, includ
 'For a continuous function on a closed bounded interval, the extreme value theorem guarantees extrema exist. It does not tell you where they occur. The candidate method finds them by comparing all interior critical points with both endpoints.'],
 'For continuous f on [a,b], evaluate f at a, b and each interior critical number. The largest and smallest candidate values are the absolute extrema.',
 '§max_{x§in[a,b]}f(x)=§max§{f(a),f(b),f(c_1),§ldots§}',
-[['Closed interval','Both boundary inputs are included.'],['Candidate','An input that might provide an extremum.'],['Absolute value of objective','Compare output values, not just input locations.']],
+[['Closed interval','Both boundary inputs are included.'],['Candidate','An input that might provide an extremum.'],['Objective value','Compare output values, not just input locations.']],
 [['f\'(c)=0§quad§text{or }f\'(c)§text{ undefined}','Find every interior critical input in the domain.'],['§text{Candidates}=§{a,c_1,§ldots,b§}','Add the endpoints even when their derivative is nonzero.'],['§text{Evaluate and compare }f§text{ at every candidate}','Choose by objective value.']],
 E('A binding capacity limit','Maximize P(q)=−q²+60q−200 for 0≤q≤20.',
 [['P\'(q)=60-2q=0§Rightarrow q=30','The unconstrained stationary input is infeasible.'],['P(0)=-200,§quad P(20)=600','There are no interior critical inputs in [0,20].'],['§max P=600§quad§text{at }q=20','The right boundary gives the best feasible value.']],
