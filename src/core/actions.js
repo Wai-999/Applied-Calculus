@@ -69,7 +69,7 @@ export function bindActions(root,{path,params,render,navigate,signal}){
     ready.then(()=>{
       if(signal.aborted)return;
       if(params.get('search')){input.value=params.get('search');updateLessons();}
-      if(params.get('chapter')){const c=root.querySelectorAll('.chapter')[Number(params.get('chapter'))-1];if(c){c.open=true;c.scrollIntoView({block:'start'});}}
+      if(params.get('chapter')){const c=root.querySelector('.chapter[data-chapter="'+Number(params.get('chapter'))+'"]');if(c){c.open=true;c.scrollIntoView({block:'start'});}}
     });
   }
   if(path==='/settings'){

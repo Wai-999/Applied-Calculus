@@ -66,3 +66,31 @@ Verification for the follow-up:
 
 The existing Chrome-only and native-speaker/screen-reader verification limits still apply.
 
+## Learner-journey audit — 6 November 2026
+
+Continued from `9e88535` through readiness, lesson activities, a complete focused practice session, review, and discovery.
+
+Resolved findings:
+
+- Repeated Next clicks could advance twice while the next practice page was mounting. Advancement now requires completion of the current question and consumes that completion once.
+- Repeated completion callbacks could inflate the session score. Session counting is now idempotent for each question.
+- Completed Hint/Reasoning controls remained enabled despite doing nothing. All completed answer controls now reflect their disabled state.
+- Revealing worked reasoning recorded an assisted attempt but did not notify the activity trail. It now records participation consistently, while awarding no independent mastery.
+- Readiness feedback incorrectly promised scheduled review. It now explains the readiness check's independent-answer record, in English and Burmese.
+- Studio command entries did not index their visible Burmese names. Concept map, insights, formula library, and terminology now match English/Burmese navigation names and page headings.
+- Combined application/chapter links could open a chapter by its filtered list position instead of its number. Chapter navigation now targets stable chapter identities.
+
+Verification:
+
+- **99/99 automated tests pass**, including 12 additional journey/discovery/navigation regressions. Regression replay confirmed failures against the prior modules for practice skipping, duplicate scoring, missing assisted participation, and misleading readiness feedback.
+- A five-question browser readiness journey mixed an independent answer, a hinted answer, a corrected answer, a revealed solution, and another independent answer. It correctly recorded **2/5 independent** and retained the result after reload; Myanmar digits were accepted.
+- A complete four-question browser practice journey recorded **1/4 independent**, retained its place across a language change, and resisted a double-click on Next. Review then offered the three assisted/corrected questions.
+- A fresh lesson's revealed solution updated its trail to **1/4 activities**, retained **0% independent evidence**, and disabled completed help controls.
+- The lesson matching exercise accepted correctly paired explanations. A pinned experiment compared vertex `(3, 2)` with `(5, 2)` after a controlled horizontal shift; the observation note saved successfully.
+- All eight browser queries using the visible English/Burmese names of four studio destinations returned the intended first result. A command activation opened terminology. The regression tests cover 20 visible-label queries.
+- All five application-interest choices traversed all 45 lessons exactly once while respecting prerequisites in controlled journey tests; no additional recommendation code changes were needed.
+- Browser navigation to `#/learn?area=economics&chapter=3` opened Chapter 3 within the filtered chapter set (2, 3, 4, 6, 7).
+- Burmese readiness feedback passed the existing layout/accessibility checks at 360px with no overflow, duplicate IDs, unnamed controls, or header overlap.
+
+Existing PDF upload, saved-download monitoring, Chrome-only, screen-reader, and linguistic-review limits remain unchanged. Test answers and notes were entered only on the isolated local audit origin.
+

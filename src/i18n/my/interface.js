@@ -1,5 +1,7 @@
 /** Shared interaction language, accessibility labels and model interpretation. */
 export const interfaceStrings={
+  "Correct — a useful foundation.":"မှန်ကန်ပါသည်။ ရှေ့ဆက်လေ့လာရန် အသုံးဝင်သော အခြေခံတစ်ခု ဖြစ်ပါသည်။",
+  "Your readiness check records whether you answered without help.":"ဤအခြေခံအသင့်ဖြစ်မှု စစ်ဆေးချက်တွင် အကူအညီမပါဘဲ ဖြေဆိုနိုင်မှုကို မှတ်တမ်းတင်ထားသည်။",
   "Not saved. Export a backup before leaving this page.":"မသိမ်းဆည်းနိုင်ပါ။ ဤစာမျက်နှာမှ မထွက်မီ အရန်ဖိုင် ထုတ်ယူပါ။",
   "Backup opened for this session. Export it before leaving; browser storage is unavailable.":"ယခုအသုံးပြုနေစဉ်အတွက် အရန်မှတ်တမ်းကို ဖွင့်ထားပါသည်။ ဘရောက်ဇာ၌ မသိမ်းဆည်းနိုင်သောကြောင့် မထွက်မီ အရန်ဖိုင် ထုတ်ယူပါ။",
   "Reset applies to this session only. Browser storage could not be updated.":"ယခုအသုံးပြုနေစဉ်အတွက်သာ မှတ်တမ်းကို ပြန်လည်စတင်ထားပါသည်။ ဘရောက်ဇာတွင် သိမ်းထားသည့် မှတ်တမ်းကို မပြင်ဆင်နိုင်ပါ။",

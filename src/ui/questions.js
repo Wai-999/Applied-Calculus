@@ -19,18 +19,18 @@ export function bindQuestions(root, onAnswer = () => {}) {
       if (id === 'diagnostic') diagnosticResults.set(key, { correct, independent });
       else { state.attempts[key] = scheduleAttempt(state.attempts[key], correct, independent); form.querySelector('.question-status').textContent=state.attempts[key].mastered?'✓ Independently solved':''; touch(id, 'practice'); save(); }
     }
-    function finish(independent) { complete = true; input.readOnly = true; form.querySelector('[type=submit]').disabled = true; onAnswer(independent); }
+    function finish(independent) { complete = true; input.readOnly = true; for(const selector of ['[type=submit]','[data-hint]','[data-solution]'])form.querySelector(selector).disabled=true; onAnswer(independent); }
     form.addEventListener('submit', e => {
       e.preventDefault(); if (complete) return;
       if (!Number.isFinite(parseAnswer(input.value))) { feedback.innerHTML = '<p class="feedback error">Use a number or fraction, such as 0.5 or 1/2.</p>'; return; }
       const correct = isCorrect(input.value, q.answer, q.tolerance ?? 0.01); record(correct, !assisted);
       form.dispatchEvent(new CustomEvent('studio:attempt',{bubbles:true,detail:{lesson:id,correct}}));
       if (correct) {
-        feedback.innerHTML = `<div class="feedback success"><strong>${assisted ? 'Now explain why that works.' : 'Correct — and ready to revisit later.'}</strong><p>${esc(q.solution)}</p><small>${assisted ? 'Try independently in review to strengthen recall.' : 'Your next review adapts to your sequence of independent answers.'}</small></div>`;
+        feedback.innerHTML = `<div class="feedback success"><strong>${assisted ? 'Now explain why that works.' : id==='diagnostic'?'Correct — a useful foundation.':'Correct — and ready to revisit later.'}</strong><p>${esc(q.solution)}</p><small>${id==='diagnostic'?'Your readiness check records whether you answered without help.':assisted ? 'Try independently in review to strengthen recall.' : 'Your next review adapts to your sequence of independent answers.'}</small></div>`;
         finish(!assisted);
       } else { assisted = true; feedback.innerHTML = `<div class="feedback error"><strong>Check your reasoning.</strong><p>${esc(q.hint)}</p><small>Check the operation, sign, domain and units. You can try again.</small></div>`; input.select(); }
     });
     form.querySelector('[data-hint]').addEventListener('click', () => { if (complete) return; assisted = true; feedback.innerHTML = `<div class="feedback hint"><strong>A hint</strong><p>${esc(q.hint)}</p></div>`; });
-    form.querySelector('[data-solution]').addEventListener('click', () => { if (complete) return; assisted = true; record(false, false); feedback.innerHTML = `<div class="feedback hint"><strong>Follow the reasoning.</strong><p>${esc(q.solution)}</p><small>Target: ${fmt(q.answer, 4)} ${esc(q.unit)}. Revisit without help to master it.</small></div>`; finish(false); });
+    form.querySelector('[data-solution]').addEventListener('click', () => { if (complete) return; assisted = true; record(false, false); form.dispatchEvent(new CustomEvent('studio:attempt',{bubbles:true,detail:{lesson:id,correct:false}})); feedback.innerHTML = `<div class="feedback hint"><strong>Follow the reasoning.</strong><p>${esc(q.solution)}</p><small>${id==='diagnostic'?'Your readiness check records whether you answered without help.':`Target: ${fmt(q.answer, 4)} ${esc(q.unit)}. Revisit without help to master it.`}</small></div>`; finish(false); });
   });
 }

@@ -4,12 +4,12 @@ import {state,mastered} from '../core/session.js';
 import {shell} from '../ui/shell.js';
 import {icon,primaryLink,sectionHead} from '../ui/shared.js';
 import {questionForm} from '../ui/questions.js';
-let practiceQueue=[],practiceIndex=0,sessionCorrect=0,sessionAnswered=0,activeSession=false;
+let practiceQueue=[],practiceIndex=0,sessionCorrect=0,sessionAnswered=0,activeSession=false,questionAnswered=false;
 export function resetPractice(){activeSession=false;}
-export function nextQuestion(){practiceIndex++;}
-export function registerSessionAnswer(independent){sessionAnswered++;if(independent)sessionCorrect++;}
+export function nextQuestion(){if(!activeSession||!questionAnswered)return;questionAnswered=false;practiceIndex++;}
+export function registerSessionAnswer(independent){if(!activeSession||questionAnswered||practiceIndex>=practiceQueue.length)return;questionAnswered=true;sessionAnswered++;if(independent)sessionCorrect++;}
 function startSession(mode,section) {
-  practiceIndex=0;sessionAnswered=0;sessionCorrect=0;activeSession=true;
+  practiceIndex=0;sessionAnswered=0;sessionCorrect=0;activeSession=true;questionAnswered=false;
   const all=lessons.flatMap(l=>l.questions.map((q,i)=>({...q,lesson:l,key:`${l.id}-${i}`})));
   if(mode==='review'){practiceQueue=dueQuestions(state,lessons).slice(0,6);}else if(section){practiceQueue=all.filter(q=>q.lesson.id===section);}else{const recent=lessons.filter(l=>state.completed.includes(l.id));const source=recent.length?all.filter(q=>recent.includes(q.lesson)):all.filter(q=>q.lesson.id===state.lastLesson);practiceQueue=[...source].sort((a,b)=>(state.attempts[a.key]?.mastered?1:0)-(state.attempts[b.key]?.mastered?1:0)||((state.attempts[a.key]?.last||0)-(state.attempts[b.key]?.last||0))).slice(0,6);}
 }

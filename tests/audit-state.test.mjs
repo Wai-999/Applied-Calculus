@@ -27,6 +27,7 @@ class Element {
   insertAdjacentHTML(){}
   focus(){}
   select(){}
+  scrollIntoView(){this.scrolled=true;}
   dispatchEvent(){return true;}
 }
 function environment(hash='#/learn'){
@@ -121,12 +122,14 @@ async function actionsHarness(){
     '../engine/text.js':mock('export function matchesSearch(){}'),
     '../pages/standard.js':mock('export function chapterList(){}'),
   });
-  h.bind=(path='/settings')=>{
+  h.bind=(path='/settings',params=new URLSearchParams(),chapters=[])=>{
     const root=new Element(),controller=new AbortController();
     root.nodes.set('.settings-grid>.path-card',[new Element(),new Element()]);root.nodes.set('.settings-grid',new Element());
     const selectors=['[data-reset]','#progress-upload','[data-copy-backup]','#backup-text','[data-import-text]','#import-text'];
     for(const selector of selectors)root.nodes.set(selector,new Element());
-    module.bindActions(root,{path,params:new URLSearchParams(),render:()=>h.renders.push({language:h.state.studio.language,hash:h.location.hash}),navigate(){},signal:controller.signal});
+    root.nodes.set('#lesson-search',new Element());root.nodes.set('#chapter-list',new Element());root.nodes.set('.chapter',chapters);
+    for(const chapter of chapters)root.nodes.set('.chapter[data-chapter="'+chapter.number+'"]',chapter);
+    module.bindActions(root,{path,params,render:()=>h.renders.push({language:h.state.studio.language,hash:h.location.hash}),navigate(){},signal:controller.signal});
     return {root,controller};
   };
   return h;
@@ -169,6 +172,13 @@ test('Copied backup text reflects preferences changed since settings was opened'
   h.state.studio.language='en';h.state.notes['1.1']='The current note';
   await root.querySelector('[data-copy-backup]').fire('click');
   assert.deepEqual(JSON.parse(h.copies[0]),h.state);
+});
+
+test('A chapter deep link opens the requested chapter after application filtering changes its position',async()=>{
+  const h=await actionsHarness(),chapters=[2,3,4,6,7].map(number=>Object.assign(new Element(),{number,open:false}));
+  h.bind('/learn',new URLSearchParams('area=economics&chapter=3'),chapters);
+  await waitFor(()=>chapters.some(c=>c.open));
+  assert.equal(chapters[1].open,true);assert.equal(chapters[1].scrolled,true);assert.equal(chapters[2].open,false);
 });
 
 test('Invalid optional review metadata recovers without discarding notes or older mastery records',()=>{

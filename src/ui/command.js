@@ -3,14 +3,16 @@ import {lessons,labCatalog,areas} from '../../data.js';
 import {details} from '../content/index.js';
 import {searchIndex} from '../engine/learning.js';
 import {esc,icon} from './shared.js';
-const entries=()=>[
+export const commandEntries=()=>[
   ...lessons.map(l=>({title:l.title,localizedTitle:burmeseText(l.title),tag:'LESSON '+l.id,path:'/lesson/'+l.id,keywords:l.id+' '+l.why+' '+lessonSearchText(l.id)+' '+details[l.id].symbols.map(s=>s.join(' ')).join(' ')})),
   ...labCatalog.map(l=>({title:l.title,localizedTitle:burmeseText(l.title),tag:'VISUAL LAB',path:'/labs/'+l.id,keywords:l.topic+' '+l.subtitle+' '+burmeseText(l.topic)+' '+burmeseText(l.subtitle)})),
   ...areas.map(a=>({title:a.name,localizedTitle:burmeseText(a.name),tag:'APPLICATION',path:'/applications/'+a.id,keywords:a.description+' '+a.question+' '+burmeseText(a.description)+' '+burmeseText(a.question)})),
-  {title:'Concept atlas',tag:'STUDIO',path:'/atlas',keywords:'prerequisites dependency map relationships'},
-  {title:'Learning insights',tag:'STUDIO',path:'/insights',keywords:'progress mastery mistakes confidence'},
-  {title:'Formula library',tag:'STUDIO',path:'/glossary',keywords:'reference equations flashcards recall'},
-  {title:'Mathematical terminology',tag:'STUDIO',path:'/terminology',keywords:'terms notation meanings usages definitions အဓိပ္ပာယ် ဝေါဟာရ သင်္ချာ'},
+  ...[
+    {title:'Concept atlas',aliases:['Concept map','See how the ideas connect.'],path:'/atlas',keywords:'prerequisites dependency map relationships'},
+    {title:'Learning insights',aliases:['My learning insights','Notice what is becoming clearer.'],path:'/insights',keywords:'progress mastery mistakes confidence'},
+    {title:'Formula library',aliases:['A reference you can reason with.'],path:'/glossary',keywords:'reference equations flashcards recall'},
+    {title:'Mathematical terminology',aliases:['Mathematical terminology & usage.'],path:'/terminology',keywords:'terms notation meanings usages definitions အဓိပ္ပာယ် ဝေါဟာရ သင်္ချာ'},
+  ].map(entry=>({...entry,tag:'STUDIO',localizedTitle:[entry.title,...entry.aliases].map(burmeseText).join(' '),keywords:entry.keywords+' '+entry.aliases.join(' ')})),
 ];
 export function openCommand(){
   if(document.querySelector('.command-dialog'))return;
@@ -21,7 +23,7 @@ export function openCommand(){
   const close=()=>dialog.close();
   dialog.addEventListener('close',()=>{dialog.remove();if(previous?.isConnected)previous.focus();},{once:true});
   const paint=()=>{
-    results=searchIndex(input.value,entries());current=0;
+    results=searchIndex(input.value,commandEntries());current=0;
     dialog.querySelector('.command-results').innerHTML=results.length?results.map((r,i)=>`<div role="listitem"><a class="command-result ${i===0?'command-current':''}" href="#${r.path}"><span><small>${r.tag}</small><strong>${esc(r.title)}</strong></span>${icon('arrow')}</a></div>`).join(''):'<p class="command-empty">No matches. Try a term such as “growth”, “cost” or “integral”.</p>';
     dialog.querySelector('[data-command-status]').textContent=results.length+' search results';
     localizeTree(dialog);
